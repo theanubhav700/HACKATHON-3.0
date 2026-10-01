@@ -45,10 +45,10 @@ export const initSecurityProtections = () => {
     }
 
     if (isCtrlOrMeta) {
-      // Ctrl + Shift + I (Inspect)
       // Ctrl + Shift + J (Console)
       // Ctrl + Shift + C (Element selector)
-      if (e.shiftKey && (key === 'i' || key === 'j' || key === 'c' || code === 73 || code === 74 || code === 67)) {
+      // (Ctrl + Shift + I is explicitly allowed)
+      if (e.shiftKey && (key === 'j' || key === 'c' || code === 74 || code === 67)) {
         e.preventDefault();
         e.stopPropagation();
         return false;

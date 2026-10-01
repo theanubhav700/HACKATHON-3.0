@@ -18,6 +18,7 @@ import AuthScreen from './components/AuthScreen';
 import PinModal from './components/PinModal';
 import QrScannerModal from './components/QrScannerModal';
 import BottomNav from './components/BottomNav';
+import TopIncomingNotification from './components/TopIncomingNotification';
 import { 
   RotateCw, 
   Sparkles, 
@@ -33,7 +34,7 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user, balance, refreshBalance } = useAuth();
+  const { user, balance, refreshBalance, incomingNotification, dismissNotification, syncTrigger } = useAuth();
 
   // Modals state
   const [isPayOpen, setIsPayOpen] = useState(false);
@@ -50,8 +51,15 @@ const Dashboard = () => {
   // PIN gate for Pay Money
   const [isPinOpen, setIsPinOpen] = useState(false);
 
-  // Trigger history refresh on payment/topup/receive
+  // Trigger history refresh on payment/topup/receive or background sync
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Auto-refresh transaction history whenever background sync detects new transaction
+  useEffect(() => {
+    if (syncTrigger > 0) {
+      setRefreshTrigger((prev) => prev + 1);
+    }
+  }, [syncTrigger]);
 
   // Mobile bottom tab
   const [mobileTab, setMobileTab] = useState('home');
@@ -152,7 +160,7 @@ const Dashboard = () => {
                 { icon: ShieldCheck, color: '#10b981', bg: 'rgba(16,185,129,0.12)', label: 'PIN Protection', value: 'Enabled' },
                 { icon: Lock, color: '#6366f1', bg: 'rgba(99,102,241,0.12)', label: 'Session Security', value: 'Encrypted' },
                 { icon: Zap, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', label: 'Transfer Speed', value: 'Instant' },
-                { icon: TrendingUp, color: '#0284c7', bg: 'rgba(2,132,199,0.12)', label: 'Transactions', value: 'Real-time Sync' },
+                { icon: TrendingUp, color: '#0284c7', bg: 'rgba(2,132,199,0.12)', label: 'Auto-Sync', value: 'Instant Live' },
               ].map(({ icon: Icon, color, bg, label, value }) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
                   <div style={{
@@ -171,9 +179,9 @@ const Dashboard = () => {
               {/* Divider */}
               <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '0.65rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <RefreshCw size={12} color="var(--text-dim)" />
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: '500' }}>
-                    Balance syncs automatically with every transaction
+                  <RefreshCw size={12} color="#10b981" />
+                  <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: '600' }}>
+                    Live instant sync active • Balance & transactions update without reload
                   </span>
                 </div>
               </div>
@@ -274,6 +282,13 @@ const Dashboard = () => {
       <ProfileModal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
+      />
+
+      {/* Top Floating Real-Time Incoming Money Banner */}
+      <TopIncomingNotification
+        notification={incomingNotification}
+        onClose={dismissNotification}
+        onViewDetails={(txn) => setSelectedTxn(txn)}
       />
     </div>
   );
