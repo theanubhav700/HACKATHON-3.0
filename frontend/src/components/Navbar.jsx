@@ -4,7 +4,7 @@ import { Sparkles, Zap, Minimize2, ArrowUpRight, LogOut } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import GalaxyButton from './GalaxyButton';
 
-const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, isLanding }) => {
+const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, isLanding, desktopNotice }) => {
   const { user, isAuthenticated, logout } = useAuth();
 
   return (
@@ -112,12 +112,17 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
 
           {/* Landing page: Transaction button */}
           {isLanding && onTransactionClick && (
-            <div>
+            <div style={{ position: 'relative' }}>
               <GalaxyButton
                 onClick={onTransactionClick}
                 shape="pill"
                 variant="purple"
+                title={typeof window !== 'undefined' && window.innerWidth > 768 ? "This is only for payment gateway" : "Open Transaction"}
                 icon={<ArrowUpRight size={17} strokeWidth={2.6} color="#c7d2fe" />}
+                style={{
+                  cursor: typeof window !== 'undefined' && window.innerWidth > 768 ? 'not-allowed' : 'pointer',
+                  opacity: typeof window !== 'undefined' && window.innerWidth > 768 ? 0.88 : 1,
+                }}
               >
                 Transaction
               </GalaxyButton>

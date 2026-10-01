@@ -280,18 +280,93 @@ const Dashboard = () => {
 
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
-  const [isAppOpen, setIsAppOpen] = useState(false);
+  
+  // Helper to detect mobile viewport (width <= 768px)
+  const isMobileViewport = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
-  // Initial Landing Screen (Main Page)
+  // On mobile: immediately open transaction view! On desktop: start on landing page
+  const [isAppOpen, setIsAppOpen] = useState(() => isMobileViewport());
+  const [desktopNotice, setDesktopNotice] = useState('');
+
+  useEffect(() => {
+    // If opened or resized on mobile, ensure transaction page is open
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setIsAppOpen(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Handle transaction click: on desktop, disable click and show notice; on mobile, open
+  const handleTransactionClick = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (window.innerWidth > 768) {
+      setDesktopNotice('This is only for payment gateway');
+      setTimeout(() => setDesktopNotice(''), 4000);
+      return;
+    }
+    setIsAppOpen(true);
+  };
+
+  // Initial Landing Screen (Desktop only when not opened)
   if (!isAppOpen) {
     return (
-      <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
+      <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', position: 'relative' }}>
         <Navbar
           isLanding={true}
-          onTransactionClick={() => setIsAppOpen(true)}
-          onOpenProfile={() => setIsAppOpen(true)}
-          onOpenAuth={() => setIsAppOpen(true)}
+          onTransactionClick={handleTransactionClick}
+          onOpenProfile={handleTransactionClick}
+          onOpenAuth={handleTransactionClick}
+          desktopNotice={desktopNotice}
         />
+
+        {/* Desktop Notice Toast */}
+        {desktopNotice && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '75px',
+              right: '20px',
+              zIndex: 9999,
+              background: 'rgba(15, 23, 42, 0.94)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(239, 68, 68, 0.45)',
+              color: '#ffffff',
+              padding: '0.85rem 1.25rem',
+              borderRadius: '14px',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(239, 68, 68, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.85rem',
+              maxWidth: '380px',
+              animation: 'fadeIn 0.25s ease-out',
+            }}
+          >
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              background: 'rgba(239, 68, 68, 0.18)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Lock size={18} color="#f87171" />
+            </div>
+            <div>
+              <div style={{ color: '#fca5a5', fontSize: '0.88rem', fontWeight: '700', letterSpacing: '-0.01em' }}>
+                This is only for payment gateway
+              </div>
+              <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '2px', fontWeight: '500' }}>
+                Payment simulator is exclusively available on mobile view.
+              </div>
+            </div>
+          </div>
+        )}
 
         <main style={{ flex: 1 }} />
       </div>
