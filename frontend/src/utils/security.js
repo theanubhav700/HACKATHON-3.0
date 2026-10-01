@@ -105,6 +105,28 @@ export const initSecurityProtections = () => {
     );
   } catch {}
 
+  // 6. Disable Mobile Pull-to-Refresh
+  let touchStartY = 0;
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length === 1) {
+      touchStartY = e.touches[0].clientY;
+    }
+  };
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches.length === 1) {
+      const currentY = e.touches[0].clientY;
+      // If user is at top of page and pulling downwards
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      if (scrollTop <= 0 && currentY > touchStartY) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    }
+  };
+  window.addEventListener('touchstart', handleTouchStart, { passive: true });
+  window.addEventListener('touchmove', handleTouchMove, { passive: false });
+
   return () => {
     document.removeEventListener('contextmenu', handleContextMenu, { capture: true });
     window.removeEventListener('wheel', handleWheel);
@@ -112,5 +134,7 @@ export const initSecurityProtections = () => {
     document.removeEventListener('gesturechange', handleGesture, { capture: true });
     document.removeEventListener('gestureend', handleGesture, { capture: true });
     window.removeEventListener('keydown', handleKeyDown, { capture: true });
+    window.removeEventListener('touchstart', handleTouchStart);
+    window.removeEventListener('touchmove', handleTouchMove);
   };
 };
