@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { initGlobalTapSound } from './utils/sound';
+import { initSecurityProtections } from './utils/security';
 import Navbar from './components/Navbar';
 import BalanceCard from './components/BalanceCard';
 import QuickActions from './components/QuickActions';
@@ -425,8 +426,12 @@ const AppContent = () => {
 
 function App() {
   useEffect(() => {
-    const cleanup = initGlobalTapSound();
-    return cleanup;
+    const cleanupSound = initGlobalTapSound();
+    const cleanupSecurity = initSecurityProtections();
+    return () => {
+      cleanupSound();
+      cleanupSecurity();
+    };
   }, []);
 
   return (

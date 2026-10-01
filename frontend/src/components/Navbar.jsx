@@ -110,21 +110,21 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
         {/* Right side: ThemeToggle (always visible) & Desktop-only Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
 
-          {/* Landing page: Transaction button */}
+          {/* Landing page: Payment Gateway button */}
           {isLanding && onTransactionClick && (
             <div style={{ position: 'relative' }}>
               <GalaxyButton
                 onClick={onTransactionClick}
                 shape="pill"
                 variant="purple"
-                title={typeof window !== 'undefined' && window.innerWidth > 768 ? "This is only for payment gateway" : "Open Transaction"}
+                title={typeof window !== 'undefined' && window.innerWidth > 768 ? "This is only for payment gateway" : "Open Payment Gateway"}
                 icon={<ArrowUpRight size={17} strokeWidth={2.6} color="#c7d2fe" />}
                 style={{
                   cursor: typeof window !== 'undefined' && window.innerWidth > 768 ? 'not-allowed' : 'pointer',
                   opacity: typeof window !== 'undefined' && window.innerWidth > 768 ? 0.88 : 1,
                 }}
               >
-                Transaction
+                Payment Gateway
               </GalaxyButton>
             </div>
           )}
@@ -150,7 +150,7 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
             </button>
           )}
 
-          {/* App pages: Transaction button (desktop only) */}
+          {/* App pages: Payment Gateway button (desktop only) */}
           {!isLanding && onTransactionClick && (
             <div className="hidden-mobile">
               <GalaxyButton
@@ -159,7 +159,7 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
                 variant="purple"
                 icon={<ArrowUpRight size={17} strokeWidth={2.6} color="#c7d2fe" />}
               >
-                Transaction
+                Payment Gateway
               </GalaxyButton>
             </div>
           )}
