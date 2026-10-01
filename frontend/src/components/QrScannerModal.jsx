@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import jsQR from 'jsqr';
 import { 
   X, 
   Flashlight, 
@@ -17,6 +18,7 @@ const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
   const streamRef = useRef(null);
   const fileInputRef = useRef(null);
   const scanIntervalRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const [hasCamera, setHasCamera] = useState(true);
   const [cameraError, setCameraError] = useState('');
@@ -47,33 +49,44 @@ const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
     setTorchOn(false);
   }, []);
 
-  // Parse UPI URI or plain identifier
+  // Parse UPI URI, JSON, or plain identifier
   const parseUpiData = (text) => {
     if (!text) return null;
-    if (text.startsWith('upi://pay')) {
-      try {
-        const url = new URL(text.replace('upi://pay', 'http://upi.dummy'));
+    const trimmed = text.trim();
+
+    // 1. JSON QR e.g. {"payee": "fakemoney2@idc", "name": "Manni Singh", "amount": 500}
+    try {
+      const json = JSON.parse(trimmed);
+      if (json.payee || json.identifier) {
+        const id = json.payee || json.identifier;
         return {
-          identifier: url.searchParams.get('pa') || '',
-          name: url.searchParams.get('pn') ? decodeURIComponent(url.searchParams.get('pn')) : '',
-          amount: url.searchParams.get('am') || '',
-        };
-      } catch {
-        // Fallback simple regex
-        const paMatch = text.match(/pa=([^&]+)/);
-        const pnMatch = text.match(/pn=([^&]+)/);
-        const amMatch = text.match(/am=([^&]+)/);
-        return {
-          identifier: paMatch ? decodeURIComponent(paMatch[1]) : '',
-          name: pnMatch ? decodeURIComponent(pnMatch[1]) : '',
-          amount: amMatch ? decodeURIComponent(amMatch[1]) : '',
+          identifier: id,
+          name: json.name || id.split('@')[0],
+          amount: json.amount ? String(json.amount) : '',
         };
       }
+    } catch {}
+
+    // 2. UPI URI: upi://pay?pa=...&pn=...&am=...
+    if (trimmed.includes('pa=')) {
+      try {
+        const queryStr = trimmed.includes('?') ? trimmed.split('?')[1] : trimmed;
+        const params = new URLSearchParams(queryStr);
+        const pa = params.get('pa') || '';
+        const pn = params.get('pn') || '';
+        const am = params.get('am') || '';
+        return {
+          identifier: pa,
+          name: pn ? decodeURIComponent(pn) : pa.split('@')[0],
+          amount: am || '',
+        };
+      } catch {}
     }
-    // Simple email or UPI ID string
+
+    // 3. Plain email or UPI ID string
     return {
-      identifier: text.trim(),
-      name: text.split('@')[0],
+      identifier: trimmed,
+      name: trimmed.split('@')[0],
       amount: '',
     };
   };
@@ -140,30 +153,54 @@ const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
         }
       }
 
-      // If BarcodeDetector is natively supported, scan live video frames
-      if ('BarcodeDetector' in window) {
+      // Universal live QR scanning using jsQR & BarcodeDetector
+      let isProcessing = false;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+      scanIntervalRef.current = setInterval(async () => {
+        if (isProcessing) return;
+        if (!videoRef.current || videoRef.current.readyState < 2) return;
+
+        const video = videoRef.current;
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+        if (!width || !height) return;
+
+        isProcessing = true;
         try {
-          const barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
-          scanIntervalRef.current = setInterval(async () => {
-            if (videoRef.current && videoRef.current.readyState === 4) {
-              try {
-                const barcodes = await barcodeDetector.detect(videoRef.current);
-                if (barcodes && barcodes.length > 0) {
-                  const detectedText = barcodes[0].rawValue;
-                  if (detectedText) {
-                    clearInterval(scanIntervalRef.current);
-                    handleDetected(detectedText);
-                  }
-                }
-              } catch {
-                // ignore frame detection drops
+          // 1. Try BarcodeDetector first if natively supported
+          if ('BarcodeDetector' in window) {
+            try {
+              const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+              const barcodes = await detector.detect(video);
+              if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                clearInterval(scanIntervalRef.current);
+                handleDetected(barcodes[0].rawValue);
+                return;
               }
-            }
-          }, 250);
-        } catch (e) {
-          console.warn('BarcodeDetector error:', e);
+            } catch {}
+          }
+
+          // 2. Cross-platform jsQR decoder (works on iOS, Android, Desktop)
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(video, 0, 0, width, height);
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const code = jsQR(imageData.data, width, height, {
+            inversionAttempts: 'dontInvert',
+          });
+          if (code && code.data) {
+            clearInterval(scanIntervalRef.current);
+            handleDetected(code.data);
+            return;
+          }
+        } catch {
+          // ignore frame read drops
+        } finally {
+          isProcessing = false;
         }
-      }
+      }, 120);
     } catch (err) {
       console.warn('Camera access failed:', err);
       setHasCamera(false);
@@ -195,28 +232,27 @@ const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
   };
 
   // Image Upload Scan
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if ('BarcodeDetector' in window) {
-      try {
-        const barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        await img.decode();
-        const barcodes = await barcodeDetector.detect(img);
-        if (barcodes && barcodes.length > 0) {
-          handleDetected(barcodes[0].rawValue);
-          return;
-        }
-      } catch (err) {
-        console.warn('File decode failed:', err);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, img.width, img.height);
+      const code = jsQR(imageData.data, img.width, img.height);
+      if (code && code.data) {
+        handleDetected(code.data);
+      } else {
+        // Fallback demo payee if image is unreadable
+        handleDetected('upi://pay?pa=fakemoney2@idc&pn=Manni%20Singh');
       }
-    }
-
-    // Default simulation fallback for gallery image
-    handleDetected('upi://pay?pa=fakemoney2@idc&pn=Manni%20Singh&am=500');
+    };
+    img.src = URL.createObjectURL(file);
   };
 
   useEffect(() => {

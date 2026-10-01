@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import confetti from 'canvas-confetti';
@@ -15,8 +15,10 @@ import {
   Copy, 
   Check, 
   AlertTriangle,
-  RotateCw
+  RotateCw,
+  Download
 } from 'lucide-react';
+import { playPaymentSuccessSound } from '../utils/sound';
 
 const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, initialRecipient = null }) => {
   const { user, balance, refreshBalance } = useAuth();
@@ -29,6 +31,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
   const [recipientIdentifier, setRecipientIdentifier] = useState('');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const amountInputRef = useRef(null);
 
   // PIN input
   const pinLength = user?.pinLength || 4;
@@ -45,12 +48,14 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
   const [validatedRecipient, setValidatedRecipient] = useState(null);
   const [checkingRecipient, setCheckingRecipient] = useState(false);
 
-  // Reset and fetch registered recipients when modal opens
+  // Reset and fetch registered recipients when modal opens or initialRecipient changes
   useEffect(() => {
     if (isOpen) {
       setStep(1);
-      setRecipientName(initialRecipient?.name || '');
-      setRecipientIdentifier(initialRecipient?.identifier || '');
+      const scannedId = initialRecipient?.identifier || '';
+      const scannedName = initialRecipient?.name || '';
+      setRecipientIdentifier(scannedId);
+      setRecipientName(scannedName);
       setAmount(initialRecipient?.amount || '');
       setDescription(initialRecipient ? 'QR Code Payment' : '');
       setPin('');
@@ -59,6 +64,24 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
       setCopiedTxn(false);
       setValidatedRecipient(null);
       setCheckingRecipient(false);
+
+      // If scanned payee provided, auto-validate recipient details and focus amount input
+      if (scannedId) {
+        api.lookupRecipient(scannedId)
+          .then((res) => {
+            if (res.success && res.recipient) {
+              setValidatedRecipient(res.recipient);
+              if (res.recipient.fullName) {
+                setRecipientName(res.recipient.fullName);
+              }
+            }
+          })
+          .catch(() => {});
+
+        setTimeout(() => {
+          amountInputRef.current?.focus();
+        }, 150);
+      }
 
       // Load registered recipients from database
       api.getRegisteredRecipients()
@@ -69,7 +92,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
         })
         .catch(() => {});
     }
-  }, [isOpen]);
+  }, [isOpen, initialRecipient]);
 
   if (!isOpen) return null;
 
@@ -174,6 +197,9 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
           colors: ['#6366f1', '#10b981', '#06b6d4', '#f59e0b'],
         });
 
+        // Play payment success sound
+        playPaymentSuccessSound();
+
         setStep(5);
       }
     } catch (err) {
@@ -192,9 +218,207 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
     }
   };
 
+  const handleDownloadReceipt = () => {
+    const txnId = resultTxn?.transactionId || 'TXN_' + Date.now().toString(36).toUpperCase();
+    const dateStr = resultTxn?.createdAt ? new Date(resultTxn.createdAt).toLocaleString('en-IN') : new Date().toLocaleString('en-IN');
+    const amountFormatted = `₹${numAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    const senderName = user?.fullName || 'Simulated User';
+    const senderBank = user?.fictionalBank || (user?.username === 'fakemoney2@idc' ? 'HDFC Bank' : 'Union Bank');
+    const senderAccount = user?.virtualAccountMasked || '•••• 8492';
+    const recipientBankName = validatedRecipient?.fictionalBank || 'Digital Bank of India';
+
+    const receiptHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment Receipt - ${txnId}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0f172a;
+      color: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .receipt {
+      background: #ffffff;
+      width: 100%;
+      max-width: 440px;
+      border-radius: 20px;
+      padding: 30px 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 2px dashed #e2e8f0;
+    }
+    .success-icon {
+      width: 56px;
+      height: 56px;
+      background: #ecfdf5;
+      color: #059669;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 12px;
+      border: 2px solid #a7f3d0;
+    }
+    .badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #059669;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 8px;
+    }
+    .amount {
+      font-size: 38px;
+      font-weight: 900;
+      color: #059669;
+      letter-spacing: -0.02em;
+    }
+    .details {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+    }
+    .label {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .value {
+      color: #0f172a;
+      font-weight: 700;
+      text-align: right;
+    }
+    .mono {
+      font-family: monospace;
+      font-size: 12.5px;
+      color: #4f46e5;
+    }
+    .footer {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #f1f5f9;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .print-btn {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .receipt { box-shadow: none; border: 1px solid #e2e8f0; }
+      .print-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="header">
+      <div class="success-icon">✓</div>
+      <div><span class="badge">Payment Successful</span></div>
+      <div class="amount">${amountFormatted}</div>
+      <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Unified UPI Transfer Simulator</div>
+    </div>
+
+    <div class="details">
+      <div class="row">
+        <span class="label">Transaction ID</span>
+        <span class="value mono">${txnId}</span>
+      </div>
+      <div class="row">
+        <span class="label">Date & Time</span>
+        <span class="value">${dateStr}</span>
+      </div>
+      <div class="row">
+        <span class="label">Paid To</span>
+        <span class="value">${recipientName}</span>
+      </div>
+      <div class="row">
+        <span class="label">Recipient UPI ID</span>
+        <span class="value mono">${recipientIdentifier}</span>
+      </div>
+      <div class="row">
+        <span class="label">Recipient Bank</span>
+        <span class="value">${recipientBankName}</span>
+      </div>
+      <div class="row">
+        <span class="label">From Account</span>
+        <span class="value">${senderName} (${senderAccount})</span>
+      </div>
+      <div class="row">
+        <span class="label">Debited From Bank</span>
+        <span class="value">${senderBank}</span>
+      </div>
+      <div class="row">
+        <span class="label">Payment Status</span>
+        <span class="value" style="color: #059669;">COMPLETED</span>
+      </div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+
+    <div class="footer">
+      <strong>NovaPay Verified Transaction Receipt</strong><br/>
+      Safe Demo Banking Simulator — Indian Data Club Hackathon 3.0
+    </div>
+  </div>
+  <script>
+    setTimeout(function() { window.print(); }, 400);
+  </script>
+</body>
+</html>`;
+
+    const blob = new Blob([receiptHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const receiptWin = window.open(url, '_blank');
+    if (!receiptWin) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Receipt_${txnId}.html`;
+      a.click();
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+      <div 
+        className="modal-dialog" 
+        onClick={(e) => e.stopPropagation()}
+        style={step === 3 ? { maxWidth: '420px' } : {}}
+      >
         {/* Header */}
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
@@ -202,19 +426,19 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
               width: '34px',
               height: '34px',
               borderRadius: '8px',
-              background: '#eef2ff',
+              background: 'rgba(99, 102, 241, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#4f46e5',
+              color: 'var(--primary)',
             }}>
               <Send size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: '800', color: '#0f172a' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-main)' }}>
                 {step === 5 ? (errorMsg ? 'Payment Status' : 'Transfer Receipt') : 'Virtual Payment'}
               </h3>
-              <p style={{ fontSize: '0.72rem', color: '#64748b' }}>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
                 Safe Demo Simulation
               </p>
             </div>
@@ -224,11 +448,12 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
             onClick={onClose}
             style={{
               background: 'transparent',
-              color: '#64748b',
+              color: 'var(--text-dim)',
               padding: '0.35rem',
               display: 'flex',
               borderRadius: '50%',
               cursor: 'pointer',
+              border: 'none',
             }}
           >
             <X size={20} />
@@ -236,7 +461,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
         </div>
 
         {/* Modal Body with Multi-Step Flow */}
-        <div className="modal-body">
+        <div className={`modal-body ${step === 3 ? 'balance-pin-body' : ''}`}>
           {/* STEP 1: Enter Details */}
           {step === 1 && (
             <form onSubmit={handleProceedToConfirm}>
@@ -303,11 +528,12 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
                     transform: 'translateY(-50%)',
                     fontSize: '1.25rem',
                     fontWeight: '800',
-                    color: '#475569',
+                    color: 'var(--text-dim)',
                   }}>
                     ₹
                   </span>
                   <input
+                    ref={amountInputRef}
                     type="number"
                     step="any"
                     min="1"
@@ -316,7 +542,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
                       paddingLeft: '2.4rem',
                       fontSize: '1.3rem',
                       fontWeight: '800',
-                      color: '#0f172a',
+                      color: 'var(--text-main)',
                     }}
                     placeholder="0.00"
                     value={amount}
@@ -387,15 +613,15 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
               <div style={{
                 textAlign: 'center',
                 padding: '1.25rem 0',
-                borderBottom: '1px solid #e2e8f0',
+                borderBottom: '1px solid var(--border-subtle)',
               }}>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>
                   Paying To
                 </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: '800', marginTop: '0.2rem', color: '#0f172a' }}>
+                <div style={{ fontSize: '1.4rem', fontWeight: '800', marginTop: '0.2rem', color: 'var(--text-main)' }}>
                   {recipientName}
                 </div>
-                <div style={{ fontSize: '0.85rem', color: '#4f46e5', marginTop: '2px', fontFamily: 'monospace', fontWeight: '600' }}>
+                <div style={{ fontSize: '0.85rem', color: 'var(--primary)', marginTop: '2px', fontFamily: 'monospace', fontWeight: '600' }}>
                   {recipientIdentifier}
                 </div>
                 <div style={{
@@ -403,7 +629,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
                   fontWeight: '800',
                   marginTop: '0.85rem',
                   fontFamily: 'var(--font-heading)',
-                  color: '#0f172a',
+                  color: 'var(--text-main)',
                 }}>
                   ₹{numAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </div>
@@ -412,34 +638,34 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
               <div style={{ padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {validatedRecipient && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
-                    <span style={{ color: '#64748b' }}>Recipient Bank</span>
-                    <span style={{ fontWeight: '700', color: '#059669', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Building2 size={14} color="#059669" />
+                    <span style={{ color: 'var(--text-dim)' }}>Recipient Bank</span>
+                    <span style={{ fontWeight: '700', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <Building2 size={14} color="var(--success)" />
                       {validatedRecipient.fictionalBank}
                     </span>
                   </div>
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
-                  <span style={{ color: '#64748b' }}>Your Account</span>
-                  <span style={{ fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <Building2 size={14} color="#4f46e5" />
+                  <span style={{ color: 'var(--text-dim)' }}>Your Account</span>
+                  <span style={{ fontWeight: '700', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Building2 size={14} color="var(--primary)" />
                     {user?.fictionalBank || (user?.username === 'fakemoney2@idc' ? 'HDFC Bank' : 'Union Bank')} ({user?.virtualAccountMasked})
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
-                  <span style={{ color: '#64748b' }}>Current Balance</span>
-                  <span style={{ color: '#0f172a', fontWeight: '600' }}>₹{balance.toLocaleString('en-IN')}</span>
+                  <span style={{ color: 'var(--text-dim)' }}>Current Balance</span>
+                  <span style={{ color: 'var(--text-main)', fontWeight: '600' }}>₹{balance.toLocaleString('en-IN')}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
-                  <span style={{ color: '#64748b' }}>Balance After Payment</span>
-                  <span style={{ color: '#059669', fontWeight: '800' }}>
+                  <span style={{ color: 'var(--text-dim)' }}>Balance After Payment</span>
+                  <span style={{ color: 'var(--success)', fontWeight: '800' }}>
                     ₹{(balance - numAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
                 {description && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
-                    <span style={{ color: '#64748b' }}>Note</span>
-                    <span style={{ color: '#334155' }}>{description}</span>
+                    <span style={{ color: 'var(--text-dim)' }}>Note</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{description}</span>
                   </div>
                 )}
               </div>
@@ -468,82 +694,106 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
 
           {/* STEP 3: Enter Demo Payment PIN */}
           {step === 3 && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: '#eef2ff',
-                color: '#4f46e5',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 0.75rem auto',
-              }}>
-                <Lock size={22} />
+            <div className="balance-pin-content" style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                {/* Payee Info Badge */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.4rem 0.95rem',
+                  background: 'var(--bg-card-hover)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '9999px',
+                  fontSize: '0.82rem',
+                  fontWeight: '600',
+                  color: 'var(--text-main)',
+                  marginBottom: '1rem',
+                }}>
+                  <Send size={13} color="var(--primary)" />
+                  <span>Paying {recipientName}</span>
+                  <span style={{ color: 'var(--text-dim)' }}>•</span>
+                  <span style={{ color: 'var(--success)', fontWeight: '700' }}>₹{numAmount.toLocaleString('en-IN')}</span>
+                </div>
+
+                <div style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '50%',
+                  background: 'rgba(99, 102, 241, 0.15)',
+                  color: 'var(--primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 0.65rem auto',
+                }}>
+                  <Lock size={22} />
+                </div>
+
+                <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-main)' }}>
+                  Enter {pinLength}-Digit Demo Payment PIN
+                </h4>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', marginTop: '0.25rem' }}>
+                  Authorizing virtual transfer of <strong style={{ color: 'var(--text-main)' }}>₹{numAmount.toLocaleString('en-IN')}</strong> to {recipientName}
+                </p>
+
+                {/* Masked PIN dots */}
+                <div className="pin-display-container" style={{ margin: '1.25rem 0' }}>
+                  {Array.from({ length: pinLength }).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`pin-dot ${idx < pin.length ? 'filled' : ''}`}
+                    />
+                  ))}
+                </div>
               </div>
 
-              <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#0f172a' }}>
-                Enter {pinLength}-Digit Demo Payment PIN
-              </h4>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.2rem' }}>
-                Authorizing virtual transfer of <strong style={{ color: '#0f172a' }}>₹{numAmount.toLocaleString('en-IN')}</strong> to {recipientName}
-              </p>
-
-              {/* Masked PIN dots */}
-              <div className="pin-display-container">
-                {Array.from({ length: pinLength }).map((_, idx) => (
-                  <div
-                    key={idx}
-                    className={`pin-dot ${idx < pin.length ? 'filled' : ''}`}
-                  />
-                ))}
-              </div>
-
-              {/* Numeric keypad */}
-              <div className="numpad-grid">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+              {/* Numpad Container Docked at Bottom */}
+              <div className="balance-mobile-numpad" style={{ marginTop: 'auto', width: '100%' }}>
+                <div className="numpad-grid">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      className="numpad-btn"
+                      onClick={() => handleNumpadPress(String(num))}
+                    >
+                      {num}
+                    </button>
+                  ))}
                   <button
-                    key={num}
+                    type="button"
+                    className="numpad-btn numpad-btn-action"
+                    onClick={() => setPin('')}
+                  >
+                    CLEAR
+                  </button>
+                  <button
                     type="button"
                     className="numpad-btn"
-                    onClick={() => handleNumpadPress(String(num))}
+                    onClick={() => handleNumpadPress('0')}
                   >
-                    {num}
+                    0
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    className="numpad-btn numpad-btn-action"
+                    onClick={handleNumpadBackspace}
+                    title="Backspace"
+                  >
+                    <Delete size={20} />
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  className="numpad-btn numpad-btn-action"
-                  onClick={() => setPin('')}
+                  onClick={() => setStep(2)}
+                  className="btn-secondary"
+                  style={{ marginTop: '0.85rem', width: '100%' }}
                 >
-                  CLEAR
-                </button>
-                <button
-                  type="button"
-                  className="numpad-btn"
-                  onClick={() => handleNumpadPress('0')}
-                >
-                  0
-                </button>
-                <button
-                  type="button"
-                  className="numpad-btn numpad-btn-action"
-                  onClick={handleNumpadBackspace}
-                  title="Backspace"
-                >
-                  <Delete size={20} />
+                  Back to Details
                 </button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="btn-secondary"
-                style={{ marginTop: '1.25rem', width: '100%' }}
-              >
-                Back to Details
-              </button>
             </div>
           )}
 
@@ -715,27 +965,54 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
                       </div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#64748b' }}>Date & Time</span>
-                      <span style={{ color: '#0f172a', fontWeight: '500' }}>
+                      <span style={{ color: 'var(--text-dim)' }}>Date & Time</span>
+                      <span style={{ color: 'var(--text-main)', fontWeight: '500' }}>
                         {resultTxn?.createdAt ? new Date(resultTxn.createdAt).toLocaleString('en-IN') : 'Just now'}
                       </span>
                     </div>
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      borderTop: '1px dashed #cbd5e1',
+                      borderTop: '1px dashed var(--border-subtle)',
                       paddingTop: '0.65rem',
                       marginTop: '0.2rem',
                     }}>
-                      <span style={{ color: '#64748b' }}>Updated Balance</span>
-                      <span style={{ color: '#059669', fontWeight: '800' }}>
+                      <span style={{ color: 'var(--text-dim)' }}>Updated Balance</span>
+                      <span style={{ color: 'var(--success)', fontWeight: '800' }}>
                         ₹{(resultTxn?.closingBalance ?? (balance - numAmount)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
                   </div>
 
+                  {/* Download Receipt Button */}
+                  <button
+                    type="button"
+                    onClick={handleDownloadReceipt}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.55rem',
+                      padding: '0.85rem 1.25rem',
+                      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.18) 100%)',
+                      border: '1px solid rgba(99, 102, 241, 0.35)',
+                      color: 'var(--text-main)',
+                      borderRadius: 'var(--radius-md)',
+                      fontWeight: '700',
+                      fontSize: '0.92rem',
+                      cursor: 'pointer',
+                      marginTop: '1.15rem',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 4px 14px rgba(99, 102, 241, 0.12)',
+                    }}
+                  >
+                    <Download size={18} color="var(--primary)" />
+                    <span>Download Receipt (PDF)</span>
+                  </button>
+
                   {/* Actions */}
-                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
                     <button
                       type="button"
                       onClick={() => {

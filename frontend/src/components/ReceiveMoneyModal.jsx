@@ -1,22 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import QRCode from 'qrcode';
 import { useAuth } from '../context/AuthContext';
 import { 
   X, 
   QrCode, 
   Copy, 
   Check, 
-  Building2
+  Building2,
+  RotateCw
 } from 'lucide-react';
 
 const ReceiveMoneyModal = ({ isOpen, onClose }) => {
   const { user } = useAuth();
   const [copiedUpi, setCopiedUpi] = useState(false);
-
-  if (!isOpen) return null;
+  const [qrDataUrl, setQrDataUrl] = useState('');
 
   const fullName = user?.fullName || (user?.username === 'fakemoney2@idc' ? 'Manni Singh' : 'Anubhav Tiwari');
   const bankName = user?.fictionalBank || (user?.username === 'fakemoney2@idc' ? 'HDFC Bank' : 'Union Bank');
   const upiId = user?.virtualUpiId || `${user?.username || 'user'}@upi`;
+
+  // Generate real standard UPI QR Code
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Standard UPI URI format: upi://pay?pa=...&pn=...&cu=INR
+    const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(fullName)}&cu=INR`;
+
+    QRCode.toDataURL(upiUri, {
+      width: 220,
+      margin: 1,
+      color: {
+        dark: '#0f172a',
+        light: '#ffffff',
+      },
+      errorCorrectionLevel: 'M',
+    })
+      .then((url) => {
+        setQrDataUrl(url);
+      })
+      .catch(() => {
+        // Fallback to QR API if local canvas fails
+        setQrDataUrl(`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUri)}&margin=4`);
+      });
+  }, [isOpen, upiId, fullName]);
+
+  if (!isOpen) return null;
 
   const handleCopyUpi = () => {
     navigator.clipboard.writeText(upiId);
@@ -86,50 +114,26 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
               borderRadius: 'var(--radius-lg)',
               display: 'inline-block',
               boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+              minWidth: '210px',
+              minHeight: '210px',
             }}>
-              {/* High Contrast Authentic SVG QR Code */}
-              <svg width="200" height="200" viewBox="0 0 180 180" fill="none" style={{ display: 'block', margin: '0 auto' }}>
-                <rect width="180" height="180" rx="10" fill="#ffffff" />
-                
-                {/* Top-Left Finder */}
-                <rect x="15" y="15" width="45" height="45" rx="6" fill="#0f172a" />
-                <rect x="23" y="23" width="29" height="29" rx="3" fill="#ffffff" />
-                <rect x="29" y="29" width="17" height="17" rx="2" fill="#0f172a" />
-
-                {/* Top-Right Finder */}
-                <rect x="120" y="15" width="45" height="45" rx="6" fill="#0f172a" />
-                <rect x="128" y="23" width="29" height="29" rx="3" fill="#ffffff" />
-                <rect x="134" y="29" width="17" height="17" rx="2" fill="#0f172a" />
-
-                {/* Bottom-Left Finder */}
-                <rect x="15" y="120" width="45" height="45" rx="6" fill="#0f172a" />
-                <rect x="23" y="128" width="29" height="29" rx="3" fill="#ffffff" />
-                <rect x="29" y="134" width="17" height="17" rx="2" fill="#0f172a" />
-
-                {/* QR Pattern Blocks */}
-                <rect x="70" y="15" width="10" height="25" rx="2" fill="#0f172a" />
-                <rect x="85" y="25" width="20" height="10" rx="2" fill="#0f172a" />
-                <rect x="70" y="50" width="25" height="10" rx="2" fill="#0f172a" />
-                <rect x="105" y="50" width="10" height="25" rx="2" fill="#0f172a" />
-                <rect x="15" y="70" width="45" height="10" rx="2" fill="#0f172a" />
-                <rect x="15" y="90" width="20" height="15" rx="2" fill="#0f172a" />
-                <rect x="45" y="90" width="15" height="15" rx="2" fill="#0f172a" />
-                
-                {/* Center Emblem */}
-                <circle cx="90" cy="90" r="22" fill="#10b981" />
-                <circle cx="90" cy="90" r="18" fill="#ffffff" />
-                <text x="90" y="96" fill="#059669" fontSize="16" fontWeight="900" textAnchor="middle" fontFamily="sans-serif">₹</text>
-
-                {/* Bottom Pattern Blocks */}
-                <rect x="70" y="120" width="25" height="10" rx="2" fill="#0f172a" />
-                <rect x="105" y="120" width="15" height="25" rx="2" fill="#0f172a" />
-                <rect x="70" y="140" width="10" height="25" rx="2" fill="#0f172a" />
-                <rect x="90" y="150" width="25" height="15" rx="2" fill="#0f172a" />
-                <rect x="130" y="75" width="35" height="15" rx="2" fill="#0f172a" />
-                <rect x="125" y="100" width="20" height="20" rx="2" fill="#0f172a" />
-                <rect x="155" y="100" width="10" height="40" rx="2" fill="#0f172a" />
-                <rect x="125" y="150" width="25" height="15" rx="2" fill="#0f172a" />
-              </svg>
+              {qrDataUrl ? (
+                <img
+                  src={qrDataUrl}
+                  alt={`QR for ${upiId}`}
+                  style={{
+                    width: '200px',
+                    height: '200px',
+                    display: 'block',
+                    margin: '0 auto',
+                    borderRadius: '4px',
+                  }}
+                />
+              ) : (
+                <div style={{ width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <RotateCw size={24} className="animate-spin" color="var(--primary)" />
+                </div>
+              )}
             </div>
 
             {/* Account Holder Name & Bank (100% visible in Dark & Light mode) */}
