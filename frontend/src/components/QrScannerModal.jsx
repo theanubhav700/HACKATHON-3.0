@@ -581,7 +581,7 @@ const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
             </button>
 
             <button
-              onClick={() => handleDetected('upi://pay?pa=store@idc&pn=NovaPay%20Merchant&am=1250')}
+              onClick={() => handleDetected('upi://pay?pa=store@idc&pn=HexaPay%20Merchant&am=1250')}
               type="button"
               style={{
                 background: 'rgba(16, 185, 129, 0.25)',

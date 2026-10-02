@@ -235,7 +235,7 @@ const PinModal = ({ isOpen, onClose, onSuccess, title = 'Enter UPI PIN' }) => {
             fontWeight: '500',
             margin: 0,
           }}>
-            Enter your 6-digit NovaPay UPI PIN
+            Enter your 6-digit HexaPay UPI PIN
           </p>
         </div>
 

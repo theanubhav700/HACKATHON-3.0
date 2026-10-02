@@ -89,7 +89,7 @@ const AuthScreen = () => {
               </div>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.02em', margin: 0 }}>
-                  NovaPay
+                  HexaPay
                 </h3>
                 <span style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: '500' }}>
                   Next-Gen Digital Payment Platform
@@ -98,7 +98,7 @@ const AuthScreen = () => {
             </div>
 
             <h1 style={{ fontSize: '1.75rem', fontWeight: '800', lineHeight: 1.25, color: '#ffffff', marginBottom: '0.75rem' }}>
-              Access Your NovaPay Account
+              Access Your HexaPay Account
             </h1>
             <p style={{ fontSize: '0.88rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.5rem' }}>
               Experience lightning-fast UPI transfers, verified digital receipts, and real-time bank settlements.

@@ -391,7 +391,7 @@ const PaymentModal = ({ isOpen, onClose, onSuccessPayment, onViewTransaction, in
     <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
 
     <div class="footer">
-      <strong>NovaPay Verified Transaction Receipt</strong><br/>
+      <strong>HexaPay Verified Transaction Receipt</strong><br/>
       Safe Demo Banking Simulator — Indian Data Club Hackathon 3.0
     </div>
   </div>
