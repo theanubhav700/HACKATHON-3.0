@@ -433,20 +433,22 @@ const AppContent = () => {
         color: 'var(--text-main)',
       }}>
         <div style={{
-          width: '56px',
-          height: '56px',
+          width: '58px',
+          height: '58px',
           borderRadius: '16px',
-          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+          background: 'linear-gradient(135deg, #0284c7, #2563eb)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 8px 24px rgba(99, 102, 241, 0.4)',
+          boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)',
+          overflow: 'hidden',
+          padding: '6px',
         }}>
-          <Sparkles size={28} color="#fff" />
+          <img src="/idc-icon.png" alt="IDC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
         <RotateCw size={26} className="animate-spin" color="var(--primary)" />
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }}>
-          Loading NovaPay...
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)', fontWeight: '600' }}>
+          Loading IDC 3.0...
         </p>
       </div>
     );

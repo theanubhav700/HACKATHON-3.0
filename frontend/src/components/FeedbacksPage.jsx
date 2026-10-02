@@ -132,15 +132,21 @@ const FeedbacksPage = () => {
                   width: '38px',
                   height: '38px',
                   borderRadius: '11px',
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ffffff',
-                  boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)',
+                  boxShadow: '0 4px 14px rgba(245, 158, 11, 0.3)',
+                  overflow: 'hidden',
+                  padding: '4px',
                 }}
               >
-                <Award size={22} />
+                <img
+                  src="/idc-icon.png"
+                  alt="IDC"
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                />
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
@@ -221,17 +227,6 @@ const FeedbacksPage = () => {
               <RotateCw size={14} className={refreshing ? 'animate-spin' : ''} />
               <span>{refreshing ? 'Syncing...' : 'Refresh'}</span>
             </button>
-
-            <GalaxyButton
-              href="/"
-              target="_self"
-              shape="pill"
-              variant="purple"
-              title="Return to Main Portal"
-              icon={<ArrowUpRight size={16} strokeWidth={2.4} color="#c7d2fe" />}
-            >
-              Payment Portal
-            </GalaxyButton>
 
             <ThemeToggle />
           </div>

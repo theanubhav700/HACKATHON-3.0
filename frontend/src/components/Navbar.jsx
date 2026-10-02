@@ -60,10 +60,19 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ffffff',
               boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
+              overflow: 'hidden',
+              padding: '4px',
             }}>
-              <Zap size={20} fill="#ffffff" color="#ffffff" />
+              <img
+                src="/idc-icon.png"
+                alt="IDC Logo"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                }}
+              />
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>

@@ -1,18 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="fmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6366f1" />
-      <stop offset="50%" stop-color="#8b5cf6" />
-      <stop offset="100%" stop-color="#06b6d4" />
+    <linearGradient id="idcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#0284c7" />
     </linearGradient>
-    <linearGradient id="innerGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25" />
-      <stop offset="100%" stop-color="#000000" stop-opacity="0.1" />
+    <linearGradient id="glowRing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#6366f1" />
     </linearGradient>
   </defs>
-  <rect width="100" height="100" rx="26" fill="url(#fmGrad)" />
-  <rect x="2" y="2" width="96" height="96" rx="24" stroke="url(#innerGlow)" stroke-width="2" />
-  <!-- Stylized F and Currency Wave -->
-  <path d="M30 26 H70 C72 26 74 28 74 30 C74 32 72 34 70 34 H38 V46 H62 C64 46 66 48 66 50 C66 52 64 54 62 54 H38 V74 C38 76 36 78 34 78 C32 78 30 76 30 74 V26 Z" fill="#ffffff" />
-  <circle cx="68" cy="68" r="8" fill="#10b981" />
+  <rect width="100" height="100" rx="26" fill="url(#idcGrad)" />
+  <rect x="2" y="2" width="96" height="96" rx="24" stroke="url(#glowRing)" stroke-width="2.5" stroke-opacity="0.8" />
+  <!-- IDC Official Branding -->
+  <text x="50" y="58" font-family="'Outfit', 'Inter', -apple-system, sans-serif" font-weight="900" font-size="32" fill="#ffffff" text-anchor="middle" letter-spacing="1">IDC</text>
+  <circle cx="50" cy="74" r="3.5" fill="#38bdf8" />
+  <path d="M32 74 H42 M58 74 H68" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" opacity="0.7" />
 </svg>
