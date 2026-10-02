@@ -444,7 +444,7 @@ const AppContent = () => {
           overflow: 'hidden',
           padding: '6px',
         }}>
-          <img src="/idc-icon.png" alt="IDC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          <img src="/Hexa.png" alt="IDC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
         <RotateCw size={26} className="animate-spin" color="var(--primary)" />
         <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)', fontWeight: '600' }}>

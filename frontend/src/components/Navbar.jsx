@@ -1,11 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Zap, Minimize2, ArrowUpRight, LogOut, MessageSquareText } from 'lucide-react';
+import { Sparkles, Zap, Minimize2, ArrowUpRight, LogOut, MessageSquareText, Download } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import GalaxyButton from './GalaxyButton';
 
 const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, onOpenFeedback, isLanding, desktopNotice }) => {
   const { user, isAuthenticated, logout } = useAuth();
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      setIsInstalled(true);
+    }
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('appinstalled', () => {
+      setIsInstalled(true);
+      setInstallPrompt(null);
+    });
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) {
+      alert('To install IDC 3.0 on Chrome:\n\n1. Click the 3 dots (⋮) in Chrome menu\n2. Select "Install IDC 3.0" or "Add to Home screen"');
+      return;
+    }
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setInstallPrompt(null);
+    }
+  };
 
   return (
     <header style={{
@@ -34,10 +65,10 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
               title="Indian Data Club - India's Largest Data Community"
               icon={
                 <img
-                  src="/idc-icon.png"
+                  src="/Hexa.png"
                   alt="IDC"
                   style={{
-                    height: '22px',
+                    height: '24px',
                     width: 'auto',
                     objectFit: 'contain',
                     filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.35))',
@@ -62,10 +93,10 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
               justifyContent: 'center',
               boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
               overflow: 'hidden',
-              padding: '4px',
+              padding: '2px',
             }}>
               <img
-                src="/idc-icon.png"
+                src="/Hexa.png"
                 alt="IDC Logo"
                 style={{
                   width: '100%',
@@ -134,6 +165,33 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
                 Feedbacks
               </GalaxyButton>
             </div>
+          )}
+
+          {/* Install App Button */}
+          {!isInstalled && (
+            <button
+              onClick={handleInstallClick}
+              id="install-pwa-btn"
+              type="button"
+              title="Install IDC 3.0 App on Chrome"
+              style={{
+                background: 'rgba(37, 99, 235, 0.12)',
+                border: '1px solid rgba(37, 99, 235, 0.38)',
+                color: '#60a5fa',
+                padding: '0.45rem 0.85rem',
+                borderRadius: '9999px',
+                fontSize: '0.78rem',
+                fontWeight: '700',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Download size={14} />
+              <span>Install App</span>
+            </button>
           )}
 
           {/* Landing page: Payment Gateway button */}
