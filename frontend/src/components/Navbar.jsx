@@ -110,14 +110,16 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
         {/* Right side: Controls & Action Buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
 
-          {/* Landing page: Feedbacks button (Just to the left of Payment Gateway) */}
-          {isLanding && onOpenFeedback && (
+          {/* Landing page: Feedbacks button (Opens in a NEW TAB as full page) */}
+          {isLanding && (
             <div style={{ position: 'relative' }}>
               <GalaxyButton
-                onClick={onOpenFeedback}
+                href="/?view=feedbacks"
+                target="_blank"
+                rel="noopener noreferrer"
                 shape="pill"
                 variant="subtle-green"
-                title="View Judges Feedbacks"
+                title="Open Judges Feedbacks in New Tab"
                 icon={<MessageSquareText size={17} strokeWidth={2.4} color="#86efac" />}
               >
                 Feedbacks

@@ -20,6 +20,7 @@ import QrScannerModal from './components/QrScannerModal';
 import BottomNav from './components/BottomNav';
 import TopIncomingNotification from './components/TopIncomingNotification';
 import FeedbackModal from './components/FeedbackModal';
+import FeedbacksPage from './components/FeedbacksPage';
 import { 
   RotateCw, 
   Sparkles, 
@@ -305,6 +306,21 @@ const Dashboard = () => {
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
   
+  // Standalone Full-Page Route for Judges Feedbacks (opened in new tab)
+  const isFeedbacksPage = () => {
+    if (typeof window === 'undefined') return false;
+    const urlParams = new URLSearchParams(window.location.search);
+    return (
+      urlParams.get('view') === 'feedbacks' ||
+      window.location.pathname === '/feedbacks' ||
+      window.location.hash === '#feedbacks'
+    );
+  };
+
+  if (isFeedbacksPage()) {
+    return <FeedbacksPage />;
+  }
+
   // Helper to detect mobile viewport (width <= 768px)
   const isMobileViewport = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
