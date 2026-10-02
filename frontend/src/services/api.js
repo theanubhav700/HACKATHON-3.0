@@ -183,4 +183,41 @@ export const api = {
     if (!res.ok) throw new Error(data.message || 'Failed to clear transactions');
     return data;
   },
+
+  // ─── Feedbacks ───
+  getFeedbacks: async () => {
+    const res = await fetch(`${API_BASE}/feedback`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to fetch feedbacks');
+    return data;
+  },
+
+  submitFeedback: async (feedbackData) => {
+    const res = await fetch(`${API_BASE}/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(feedbackData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to submit feedback');
+    return data;
+  },
+
+  deleteFeedback: async (id) => {
+    const res = await fetch(`${API_BASE}/feedback/${id}`, {
+      method: 'DELETE',
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to delete feedback');
+    return data;
+  },
+
+  clearFeedbacks: async () => {
+    const res = await fetch(`${API_BASE}/feedback`, {
+      method: 'DELETE',
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to clear feedbacks');
+    return data;
+  },
 };

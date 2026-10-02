@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Zap, Minimize2, ArrowUpRight, LogOut } from 'lucide-react';
+import { Sparkles, Zap, Minimize2, ArrowUpRight, LogOut, MessageSquareText } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import GalaxyButton from './GalaxyButton';
 
-const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, isLanding, desktopNotice }) => {
+const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, onOpenFeedback, isLanding, desktopNotice }) => {
   const { user, isAuthenticated, logout } = useAuth();
 
   return (
@@ -107,8 +107,23 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
           </div>
         )}
 
-        {/* Right side: ThemeToggle (always visible) & Desktop-only Controls */}
+        {/* Right side: Controls & Action Buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+
+          {/* Landing page: Feedbacks button (Just to the left of Payment Gateway) */}
+          {isLanding && onOpenFeedback && (
+            <div style={{ position: 'relative' }}>
+              <GalaxyButton
+                onClick={onOpenFeedback}
+                shape="pill"
+                variant="subtle-green"
+                title="View Judges Feedbacks"
+                icon={<MessageSquareText size={17} strokeWidth={2.4} color="#86efac" />}
+              >
+                Feedbacks
+              </GalaxyButton>
+            </div>
+          )}
 
           {/* Landing page: Payment Gateway button */}
           {isLanding && onTransactionClick && (
@@ -129,6 +144,21 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
             </div>
           )}
 
+          {/* Inside App Feedbacks button (Just to the left of Payment Gateway) */}
+          {!isLanding && onOpenFeedback && (
+            <div>
+              <GalaxyButton
+                onClick={onOpenFeedback}
+                shape="pill"
+                variant="subtle-green"
+                title="View Judges Feedbacks"
+                icon={<MessageSquareText size={17} strokeWidth={2.4} color="#86efac" />}
+              >
+                Feedbacks
+              </GalaxyButton>
+            </div>
+          )}
+
           {/* ThemeToggle: only shown inside app, hidden on landing page */}
           {!isLanding && (
             <div>
@@ -136,7 +166,7 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
             </div>
           )}
 
-          {/* Mobile Logout Button (to the right of Theme button on mobile) */}
+          {/* Mobile Logout Button */}
           {isAuthenticated && (
             <button
               onClick={logout}

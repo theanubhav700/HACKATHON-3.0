@@ -19,6 +19,7 @@ import PinModal from './components/PinModal';
 import QrScannerModal from './components/QrScannerModal';
 import BottomNav from './components/BottomNav';
 import TopIncomingNotification from './components/TopIncomingNotification';
+import FeedbackModal from './components/FeedbackModal';
 import { 
   RotateCw, 
   Sparkles, 
@@ -44,6 +45,7 @@ const Dashboard = () => {
   const [isBankDetailsOpen, setIsBankDetailsOpen] = useState(false);
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [selectedTxn, setSelectedTxn] = useState(null);
   const [isScanOpen, setIsScanOpen] = useState(false);
   const [scannedPayee, setScannedPayee] = useState(null);
@@ -83,6 +85,7 @@ const Dashboard = () => {
     <div className="app-container">
       <Navbar
         onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenFeedback={() => setIsFeedbackOpen(true)}
       />
 
       <main className="main-content">
@@ -284,6 +287,11 @@ const Dashboard = () => {
         onClose={() => setIsProfileOpen(false)}
       />
 
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+      />
+
       {/* Top Floating Real-Time Incoming Money Banner */}
       <TopIncomingNotification
         notification={incomingNotification}
@@ -303,6 +311,7 @@ const AppContent = () => {
   // On mobile: immediately open transaction view! On desktop: start on landing page
   const [isAppOpen, setIsAppOpen] = useState(() => isMobileViewport());
   const [desktopNotice, setDesktopNotice] = useState('');
+  const [isLandingFeedbackOpen, setIsLandingFeedbackOpen] = useState(false);
 
   useEffect(() => {
     // If opened or resized on mobile, ensure transaction page is open
@@ -335,7 +344,13 @@ const AppContent = () => {
           onTransactionClick={handleTransactionClick}
           onOpenProfile={handleTransactionClick}
           onOpenAuth={handleTransactionClick}
+          onOpenFeedback={() => setIsLandingFeedbackOpen(true)}
           desktopNotice={desktopNotice}
+        />
+
+        <FeedbackModal
+          isOpen={isLandingFeedbackOpen}
+          onClose={() => setIsLandingFeedbackOpen(false)}
         />
 
         {/* Desktop Notice Toast */}
@@ -427,11 +442,16 @@ const AppContent = () => {
         <Navbar
           onOpenProfile={() => {}}
           onOpenAuth={() => {}}
+          onOpenFeedback={() => setIsLandingFeedbackOpen(true)}
           onCloseToButton={() => setIsAppOpen(false)}
         />
         <main className="main-content auth-main-content" style={{ width: '100%' }}>
           <AuthScreen />
         </main>
+        <FeedbackModal
+          isOpen={isLandingFeedbackOpen}
+          onClose={() => setIsLandingFeedbackOpen(false)}
+        />
       </div>
     );
   }

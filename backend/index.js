@@ -43,12 +43,14 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/transactions', require('./routes/transactions'));
+app.use('/api/feedback', require('./routes/feedback'));
 
 // Fallback alias in case client prepends /api twice
 app.use('/api/api/auth', require('./routes/auth'));
 app.use('/api/api/user', require('./routes/user'));
 app.use('/api/api/payments', require('./routes/payments'));
 app.use('/api/api/transactions', require('./routes/transactions'));
+app.use('/api/api/feedback', require('./routes/feedback'));
 
 // ─── 404 Handler ──────────────────────────────────────────────
 app.use((req, res) => {
