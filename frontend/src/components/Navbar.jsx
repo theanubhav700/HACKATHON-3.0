@@ -144,21 +144,6 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
             </div>
           )}
 
-          {/* Inside App Feedbacks button (Just to the left of Payment Gateway) */}
-          {!isLanding && onOpenFeedback && (
-            <div>
-              <GalaxyButton
-                onClick={onOpenFeedback}
-                shape="pill"
-                variant="subtle-green"
-                title="View Judges Feedbacks"
-                icon={<MessageSquareText size={17} strokeWidth={2.4} color="#86efac" />}
-              >
-                Feedbacks
-              </GalaxyButton>
-            </div>
-          )}
-
           {/* ThemeToggle: only shown inside app, hidden on landing page */}
           {!isLanding && (
             <div>
