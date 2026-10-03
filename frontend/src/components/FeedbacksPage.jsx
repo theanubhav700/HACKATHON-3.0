@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 import { 
   Star, 
@@ -56,7 +56,7 @@ const FeedbacksPage = ({ onBack }) => {
   const [selectedStar, setSelectedStar] = useState('ALL');
   const [lastUpdated, setLastUpdated] = useState('');
 
-  const handleGoBack = (e) => {
+  const handleGoBack = useCallback((e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (onBack) {
       onBack();
@@ -65,7 +65,72 @@ const FeedbacksPage = ({ onBack }) => {
     } else if (typeof window !== 'undefined') {
       window.location.href = '/';
     }
-  };
+  }, [onBack]);
+
+  // Two-finger trackpad swipe back gesture detection
+  useEffect(() => {
+    let accumulatedDeltaX = 0;
+    let gestureTimer = null;
+    let isNavigating = false;
+
+    const handleWheel = (e) => {
+      if (e.ctrlKey || isNavigating) return;
+
+      // Detect horizontal scroll gesture (deltaX dominant over deltaY)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 5) {
+        // Swiping two fingers left-to-right (deltaX is negative when scrolling right/back)
+        if (e.deltaX < 0 && window.scrollX <= 5) {
+          accumulatedDeltaX += e.deltaX;
+
+          if (gestureTimer) clearTimeout(gestureTimer);
+          gestureTimer = setTimeout(() => {
+            accumulatedDeltaX = 0;
+          }, 350);
+
+          // Threshold reached for deliberate two-finger swipe
+          if (accumulatedDeltaX < -45) {
+            isNavigating = true;
+            accumulatedDeltaX = 0;
+            handleGoBack();
+          }
+        }
+      }
+    };
+
+    // Mobile / touchscreen trackpad swipe
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e) => {
+      if (e.touches && e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      if (isNavigating) return;
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        const diffX = e.changedTouches[0].clientX - touchStartX;
+        const diffY = e.changedTouches[0].clientY - touchStartY;
+        if (diffX > 65 && Math.abs(diffX) > Math.abs(diffY) * 1.3) {
+          isNavigating = true;
+          handleGoBack();
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+      if (gestureTimer) clearTimeout(gestureTimer);
+    };
+  }, [handleGoBack]);
 
   const loadFeedbacks = async (isManual = false) => {
     if (isManual) setRefreshing(true);
