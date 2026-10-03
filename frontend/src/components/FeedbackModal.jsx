@@ -53,12 +53,21 @@ const FeedbackModal = ({ isOpen, onClose }) => {
     setError('');
     try {
       const data = await api.getFeedbacks();
-      setFeedbacks(data.feedbacks || []);
+      const list = data.feedbacks || [];
+      setFeedbacks(list);
       setStats({
         count: data.count || 0,
         average: data.average || '0.0',
         fiveStarCount: data.fiveStarCount || 0,
       });
+      if (list[0]?._id) {
+        localStorage.setItem('hexa_seen_feedback_id', list[0]._id);
+      }
+      localStorage.setItem('hexa_seen_feedback_count', String(list.length));
+      localStorage.removeItem('hexa_has_unread_feedback');
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('feedback_read'));
+      }
     } catch (err) {
       setError(err.message || 'Failed to load feedbacks');
     } finally {

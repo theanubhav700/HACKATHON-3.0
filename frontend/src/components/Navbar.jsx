@@ -1,11 +1,95 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ArrowUpRight, LogOut, MessageSquareText } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import GalaxyButton from './GalaxyButton';
+import { api } from '../services/api';
 
 const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, onOpenFeedback, isLanding, desktopNotice }) => {
   const { user, isAuthenticated, logout } = useAuth();
+  const [hasNewFeedback, setHasNewFeedback] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('hexa_has_unread_feedback') === 'true';
+  });
+  const latestFeedbackIdRef = useRef(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    let pollTimer = null;
+
+    const checkFeedbacks = async () => {
+      try {
+        const data = await api.getFeedbacks();
+        if (!isMounted) return;
+        const list = data?.feedbacks || [];
+        const currentCount = list.length;
+        const latestFb = list[0];
+        const latestId = latestFb?._id;
+        latestFeedbackIdRef.current = latestId || null;
+
+        const storedSeenId = localStorage.getItem('hexa_seen_feedback_id');
+        const storedSeenCount = localStorage.getItem('hexa_seen_feedback_count');
+
+        if (storedSeenId === null && storedSeenCount === null) {
+          // Initialize baseline on first visit so historical feedbacks don't trigger glow
+          if (latestId) {
+            localStorage.setItem('hexa_seen_feedback_id', latestId);
+          }
+          localStorage.setItem('hexa_seen_feedback_count', String(currentCount));
+        } else {
+          // A new review arrived if latest ID is newer/different from seen ID or count grew
+          const hasNewId = Boolean(latestId && storedSeenId && latestId !== storedSeenId);
+          const hasCountIncreased = storedSeenCount !== null && currentCount > parseInt(storedSeenCount, 10);
+
+          if (hasNewId || hasCountIncreased) {
+            setHasNewFeedback(true);
+            localStorage.setItem('hexa_has_unread_feedback', 'true');
+          }
+        }
+      } catch (err) {
+        // Silently retry on next interval
+      }
+    };
+
+    checkFeedbacks();
+    pollTimer = setInterval(checkFeedbacks, 3000);
+
+    const handleFeedbackRead = () => {
+      setHasNewFeedback(false);
+      localStorage.removeItem('hexa_has_unread_feedback');
+    };
+
+    const handleStorageChange = (e) => {
+      if (e.key === 'hexa_has_unread_feedback') {
+        setHasNewFeedback(e.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('feedback_read', handleFeedbackRead);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      isMounted = false;
+      if (pollTimer) clearInterval(pollTimer);
+      window.removeEventListener('feedback_read', handleFeedbackRead);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  const handleFeedbackClick = () => {
+    setHasNewFeedback(false);
+    localStorage.removeItem('hexa_has_unread_feedback');
+    if (latestFeedbackIdRef.current) {
+      localStorage.setItem('hexa_seen_feedback_id', latestFeedbackIdRef.current);
+    }
+    api.getFeedbacks().then((data) => {
+      const list = data?.feedbacks || [];
+      if (list[0]?._id) {
+        localStorage.setItem('hexa_seen_feedback_id', list[0]._id);
+      }
+      localStorage.setItem('hexa_seen_feedback_count', String(list.length));
+    }).catch(() => {});
+  };
 
   return (
     <header style={{
@@ -132,7 +216,9 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
                 rel="noopener noreferrer"
                 shape="pill"
                 variant="subtle-green"
-                title="Open Judges Feedbacks in New Tab"
+                className={hasNewFeedback ? 'review-inner-glow' : ''}
+                onClick={handleFeedbackClick}
+                title={hasNewFeedback ? "New review received! Click to view" : "Open Judges Feedbacks in New Tab"}
                 icon={<MessageSquareText size={17} strokeWidth={2.4} color="#86efac" />}
               >
                 Feedbacks
