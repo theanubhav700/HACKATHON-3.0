@@ -132,7 +132,7 @@ const FeedbacksPage = () => {
                   width: '38px',
                   height: '38px',
                   borderRadius: '10px',
-                  background: '#090d16',
+                  background: '#090a0d',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   display: 'flex',
                   alignItems: 'center',

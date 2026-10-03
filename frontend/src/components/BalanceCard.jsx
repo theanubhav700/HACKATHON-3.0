@@ -36,13 +36,13 @@ const BalanceCard = () => {
       style={{
         position: 'relative',
         background: isDark
-          ? 'linear-gradient(145deg, #131d33 0%, #1a2745 50%, #0e1526 100%)'
+          ? 'linear-gradient(145deg, #1a1b22 0%, #121317 50%, #0b0c0f 100%)'
           : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 60%, #f1f5f9 100%)',
         borderRadius: 'var(--radius-xl)',
         boxShadow: isDark
-          ? '0 20px 40px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15)'
+          ? '0 20px 40px -10px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.15)'
           : '0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-        border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid #e2e8f0',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #e2e8f0',
         overflow: 'hidden',
         color: isDark ? '#f8fafc' : '#0f172a',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -57,7 +57,7 @@ const BalanceCard = () => {
         height: '320px',
         borderRadius: '50%',
         background: isDark
-          ? 'radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, transparent 70%)'
+          ? 'radial-gradient(circle, rgba(255, 255, 255, 0.07) 0%, transparent 70%)'
           : 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
@@ -69,13 +69,13 @@ const BalanceCard = () => {
             width: '38px',
             height: '38px',
             borderRadius: '10px',
-            background: isDark ? 'rgba(99, 102, 241, 0.25)' : '#eef2ff',
-            border: isDark ? '1px solid rgba(99, 102, 241, 0.45)' : '1px solid #c7d2fe',
+            background: isDark ? 'rgba(255, 255, 255, 0.07)' : '#eef2ff',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid #c7d2fe',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <Building2 size={20} color={isDark ? '#a5b4fc' : '#4f46e5'} />
+            <Building2 size={20} color={isDark ? '#f8fafc' : '#4f46e5'} />
           </div>
           <div>
             <div style={{

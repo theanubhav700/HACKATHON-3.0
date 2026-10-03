@@ -273,7 +273,7 @@ const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
       position: 'fixed',
       inset: 0,
       zIndex: 2000,
-      background: '#090d16',
+      background: '#090a0d',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',

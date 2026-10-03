@@ -37,35 +37,35 @@
 }
 
 [data-theme='dark'] {
-  --bg-primary: #090d16;
-  --bg-secondary: #0f172a;
-  --bg-card: #131b2e;
-  --bg-card-hover: #1e293b;
-  --bg-glass: rgba(15, 23, 42, 0.92);
-  --border-subtle: #243048;
+  --bg-primary: #090a0d;
+  --bg-secondary: #111216;
+  --bg-card: #14151a;
+  --bg-card-hover: #1c1d23;
+  --bg-glass: rgba(18, 19, 24, 0.92);
+  --border-subtle: rgba(255, 255, 255, 0.08);
   --border-focus: #818cf8;
   --primary: #6366f1;
   --primary-hover: #4f46e5;
-  --primary-glow: rgba(99, 102, 241, 0.4);
+  --primary-glow: rgba(99, 102, 241, 0.3);
   --accent-cyan: #38bdf8;
   --success: #10b981;
-  --success-bg: rgba(16, 185, 129, 0.15);
-  --success-border: rgba(16, 185, 129, 0.35);
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.28);
   --danger: #ef4444;
-  --danger-bg: rgba(239, 68, 68, 0.15);
-  --danger-border: rgba(239, 68, 68, 0.35);
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.28);
   --warning: #f59e0b;
-  --warning-bg: rgba(245, 158, 11, 0.15);
-  --warning-border: rgba(245, 158, 11, 0.35);
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --warning-border: rgba(245, 158, 11, 0.28);
   --text-main: #f8fafc;
   --text-muted: #cbd5e1;
   --text-dim: #94a3b8;
-  --input-bg: #1a2234;
-  --input-border: #2a3854;
+  --input-bg: #111215;
+  --input-border: rgba(255, 255, 255, 0.11);
   --input-text: #f8fafc;
-  --navbar-bg: rgba(9, 13, 22, 0.94);
-  --shadow-card: 0 8px 26px -2px rgba(0, 0, 0, 0.5), 0 2px 8px -1px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 4px 18px rgba(99, 102, 241, 0.4);
+  --navbar-bg: rgba(9, 10, 13, 0.88);
+  --shadow-card: 0 10px 30px -4px rgba(0, 0, 0, 0.65), 0 2px 8px -2px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 4px 18px rgba(99, 102, 241, 0.25);
 }
 
 * {
@@ -99,8 +99,8 @@ body {
 
 [data-theme='dark'] body {
   background-image: 
-    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.14) 0%, transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(56, 189, 248, 0.09) 0%, transparent 45%);
+    radial-gradient(circle at 15% 12%, rgba(255, 255, 255, 0.025) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(255, 255, 255, 0.015) 0%, transparent 45%);
 }
 
 /* Custom Scrollbar */
@@ -1064,7 +1064,7 @@ button:disabled {
 }
 
 .auth-hero-panel {
-  background: linear-gradient(145deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+  background: linear-gradient(145deg, #131419 0%, #1a1b22 50%, #0d0e12 100%);
   border-radius: var(--radius-xl);
   padding: 2.25rem;
   color: #ffffff;
@@ -1073,7 +1073,7 @@ button:disabled {
   justify-content: space-between;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 40px -10px rgba(67, 56, 202, 0.25);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -1218,11 +1218,11 @@ button:disabled {
   border-color: var(--border-subtle) !important;
 }
 
-/* Balance Card in Dark Mode */
+/* Balance Card in Dark Mode (Ultra-sleek Obsidian Titanium) */
 [data-theme='dark'] .balance-card {
-  background: linear-gradient(145deg, #131d33 0%, #1a2745 50%, #0e1526 100%) !important;
-  border-color: rgba(255, 255, 255, 0.14) !important;
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+  background: linear-gradient(145deg, #1a1b22 0%, #121317 50%, #0b0c0f 100%) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
   color: #f8fafc !important;
 }
 
@@ -1236,8 +1236,8 @@ button:disabled {
 
 [data-theme='dark'] .meta-box-row,
 [data-theme='dark'] .profile-meta-row {
-  background: #182235 !important;
-  border-color: #243048 !important;
+  background: #16171d !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 [data-theme='dark'] [style*="background: #f8fafc"],
@@ -1248,7 +1248,7 @@ button:disabled {
 [data-theme='dark'] [style*="background-color: #f1f5f9"],
 [data-theme='dark'] [style*="background: rgb(241, 245, 249)"],
 [data-theme='dark'] [style*="background-color: rgb(241, 245, 249)"] {
-  background: #182235 !important;
+  background: #16171d !important;
   border-color: var(--border-subtle) !important;
 }
 
@@ -1276,23 +1276,23 @@ button:disabled {
 
 [data-theme='dark'] .quick-actions-grid button:hover {
   background: var(--bg-card-hover) !important;
-  border-color: var(--primary) !important;
+  border-color: var(--border-focus) !important;
 }
 
 /* Balance selector chips */
 [data-theme='dark'] .balance-chip {
-  background: #1e293b !important;
-  border-color: #334155 !important;
+  background: #17181e !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
   color: #cbd5e1 !important;
 }
 
 [data-theme='dark'] .balance-chip:hover {
-  background: #243048 !important;
+  background: #20222a !important;
   color: #f8fafc !important;
 }
 
 [data-theme='dark'] .balance-chip.active {
-  background: rgba(99, 102, 241, 0.25) !important;
+  background: rgba(99, 102, 241, 0.22) !important;
   border-color: #818cf8 !important;
   color: #a5b4fc !important;
 }
@@ -1303,16 +1303,22 @@ button:disabled {
   border-bottom: 1px solid var(--border-subtle) !important;
 }
 
+/* Mobile Bottom Nav in Dark Mode */
+.mobile-only-nav {
+  background: var(--navbar-bg) !important;
+  border-top: 1px solid var(--border-subtle) !important;
+}
+
 /* Landing glassy HACKATHON IDC button in dark mode */
 [data-theme='dark'] #landing-hackathon-glass-btn {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.75) 100%) !important;
-  border-color: rgba(99, 102, 241, 0.35) !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+  background: linear-gradient(135deg, rgba(24, 25, 32, 0.9) 0%, rgba(13, 14, 18, 0.9) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
 }
 
 [data-theme='dark'] #landing-hackathon-glass-btn:hover {
-  border-color: rgba(99, 102, 241, 0.6) !important;
-  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Glass panel */

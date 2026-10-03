@@ -436,7 +436,7 @@ const AppContent = () => {
           width: '64px',
           height: '64px',
           borderRadius: '16px',
-          background: '#090d16',
+          background: '#090a0d',
           border: '1px solid rgba(255, 255, 255, 0.12)',
           display: 'flex',
           alignItems: 'center',
