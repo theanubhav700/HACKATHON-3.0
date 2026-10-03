@@ -433,20 +433,25 @@ const AppContent = () => {
         color: 'var(--text-main)',
       }}>
         <div style={{
-          width: '58px',
-          height: '58px',
+          width: '64px',
+          height: '64px',
           borderRadius: '16px',
-          background: 'linear-gradient(135deg, #0284c7, #2563eb)',
+          background: '#090d16',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)',
+          boxShadow: '0 8px 28px rgba(0, 0, 0, 0.65)',
           overflow: 'hidden',
-          padding: '6px',
+          padding: 0,
         }}>
-          <img src="/Hexa.png" alt="IDC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          <img
+            src="/Hexa.png"
+            alt="HexaPay Logo"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
         </div>
-        <RotateCw size={26} className="animate-spin" color="var(--primary)" />
+        <RotateCw size={24} className="animate-spin" color="var(--primary)" />
         <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)', fontWeight: '600' }}>
           Loading IDC 3.0...
         </p>

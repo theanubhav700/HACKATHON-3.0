@@ -131,21 +131,22 @@ const FeedbacksPage = () => {
                 style={{
                   width: '38px',
                   height: '38px',
-                  borderRadius: '11px',
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  borderRadius: '10px',
+                  background: '#090d16',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 4px 14px rgba(245, 158, 11, 0.3)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
                   overflow: 'hidden',
-                  padding: '4px',
+                  padding: 0,
+                  flexShrink: 0,
                 }}
               >
                 <img
                   src="/Hexa.png"
-                  alt="IDC"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  alt="HexaPay"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
               </div>
               <div>
