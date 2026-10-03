@@ -211,7 +211,7 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
         )}
 
         {/* Right side: Controls & Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isLanding ? '1.75rem' : '0.65rem' }}>
 
           {/* Landing page: Feedbacks button (Opens in a NEW TAB as full page) */}
           {isLanding && (
