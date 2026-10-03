@@ -488,7 +488,48 @@ const AppContent = () => {
           </div>
         )}
 
-        <main style={{ flex: 1 }} />
+        {/* Full-screen Hero Video */}
+        <main
+          style={{
+            flex: 1,
+            position: 'relative',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Background video */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+              zIndex: 0,
+              pointerEvents: 'none',
+            }}
+          >
+            <source src="/hero.mp4" type="video/mp4" />
+          </video>
+
+          {/* Dark overlay so the UI on top stays readable */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to bottom, rgba(5,7,12,0.45) 0%, rgba(5,7,12,0.25) 50%, rgba(5,7,12,0.65) 100%)',
+              zIndex: 1,
+            }}
+          />
+        </main>
       </div>
     );
   }
