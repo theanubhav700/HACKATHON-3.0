@@ -198,53 +198,6 @@ const TransactionHistoryModal = ({
                   </button>
                 ))}
               </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <button
-                  onClick={loadTransactions}
-                  disabled={loading}
-                  title="Refresh recorded transactions"
-                  style={{
-                    background: 'var(--bg-card-hover)',
-                    border: '1px solid var(--border-subtle)',
-                    color: 'var(--text-main)',
-                    padding: '0.4rem 0.65rem',
-                    borderRadius: 'var(--radius-md)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    fontSize: '0.78rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <RotateCw size={13} className={loading ? 'animate-spin' : ''} />
-                  <span>Refresh</span>
-                </button>
-
-                <button
-                  onClick={handleClearHistory}
-                  disabled={loading || clearing || transactions.length === 0}
-                  title="Clear all recorded transactions"
-                  style={{
-                    background: 'var(--danger-bg)',
-                    border: '1px solid var(--danger-border)',
-                    color: 'var(--danger)',
-                    padding: '0.4rem 0.65rem',
-                    borderRadius: 'var(--radius-md)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    fontSize: '0.78rem',
-                    fontWeight: '600',
-                    cursor: transactions.length === 0 ? 'not-allowed' : 'pointer',
-                    opacity: transactions.length === 0 ? 0.5 : 1,
-                  }}
-                >
-                  <Trash2 size={13} />
-                  <span>{clearing ? 'Clearing...' : 'Clear'}</span>
-                </button>
-              </div>
             </div>
           </div>
 
@@ -442,15 +395,40 @@ const TransactionHistoryModal = ({
         </div>
 
         {/* Footer */}
-        <div className="modal-footer" style={{ padding: '0.9rem 1.5rem', flexShrink: 0, justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="modal-footer" style={{ padding: '0.9rem 1.5rem', flexShrink: 0, justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.74rem', color: 'var(--text-dim)' }}>
             <ShieldCheck size={14} color="var(--primary)" />
             <span>Click any record to inspect receipt & audit trail</span>
           </div>
 
-          <button onClick={onClose} className="btn-secondary" style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}>
-            Close
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              onClick={handleClearHistory}
+              disabled={loading || clearing || transactions.length === 0}
+              title="Clear all recorded transactions"
+              style={{
+                background: 'var(--danger-bg)',
+                border: '1px solid var(--danger-border)',
+                color: 'var(--danger)',
+                padding: '0.45rem 0.85rem',
+                borderRadius: 'var(--radius-md)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                fontSize: '0.82rem',
+                fontWeight: '600',
+                cursor: transactions.length === 0 ? 'not-allowed' : 'pointer',
+                opacity: transactions.length === 0 ? 0.5 : 1,
+              }}
+            >
+              <Trash2 size={13} />
+              <span>{clearing ? 'Clearing...' : 'Clear'}</span>
+            </button>
+
+            <button onClick={onClose} className="btn-secondary" style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}>
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

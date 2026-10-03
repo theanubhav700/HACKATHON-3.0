@@ -107,27 +107,6 @@ const TransactionHistory = ({ onSelectTransaction, refreshTrigger }) => {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <button
-              onClick={loadTransactions}
-              title="Refresh history"
-              style={{
-                background: 'var(--bg-card-hover)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--text-main)',
-                padding: '0.35rem 0.55rem',
-                borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
-            >
-              <RotateCw size={13} className={loading ? 'animate-spin' : ''} />
-              <span>Refresh</span>
-            </button>
-
-            <button
               onClick={handleClearHistory}
               disabled={loading || clearing || transactions.length === 0}
               title="Clear all recorded transactions"
