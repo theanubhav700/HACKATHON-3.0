@@ -1480,48 +1480,48 @@ button:disabled {
   opacity: calc(var(--active) * 0.3 + 0.3);
 }
 
-/* ─── Review Inner Glow (Contained inside Feedbacks button when review is received) ─── */
+/* ─── Review Inner Glow (Live Red Glow inside Feedbacks button when review is received) ─── */
 .galaxy-button.review-inner-glow button,
 .galaxy-button.review-inner-glow a {
-  border-color: rgba(74, 222, 128, 0.65) !important;
-  animation: feedback-inner-glow 2.4s ease-in-out infinite alternate !important;
+  border-color: rgba(239, 68, 68, 0.75) !important;
+  animation: feedback-inner-glow-red 2s ease-in-out infinite alternate !important;
 }
 
-@keyframes feedback-inner-glow {
+@keyframes feedback-inner-glow-red {
   0% {
-    border-color: rgba(74, 222, 128, 0.45);
+    border-color: rgba(239, 68, 68, 0.5);
     box-shadow:
-      inset 0 0 10px rgba(74, 222, 128, 0.28),
-      inset 0 1px 2px rgba(255, 255, 255, 0.3),
-      0 0 5px rgba(74, 222, 128, 0.18);
+      inset 0 0 10px rgba(239, 68, 68, 0.35),
+      inset 0 1px 2px rgba(255, 255, 255, 0.35),
+      0 0 6px rgba(239, 68, 68, 0.25);
   }
   100% {
-    border-color: rgba(74, 222, 128, 0.85);
+    border-color: rgba(248, 113, 113, 0.95);
     box-shadow:
-      inset 0 0 20px rgba(74, 222, 128, 0.58),
-      inset 0 0 32px rgba(34, 197, 94, 0.22),
-      inset 0 1px 3px rgba(255, 255, 255, 0.45),
-      0 0 9px rgba(74, 222, 128, 0.35);
+      inset 0 0 22px rgba(239, 68, 68, 0.72),
+      inset 0 0 36px rgba(220, 38, 38, 0.32),
+      inset 0 1px 3px rgba(255, 255, 255, 0.5),
+      0 0 11px rgba(239, 68, 68, 0.45);
   }
 }
 
 .galaxy-button.review-inner-glow .backdrop {
   background:
-    radial-gradient(110% 120% at 85% 115%, rgba(255, 255, 255, 0.22) 0%, rgba(34, 197, 94, 0.32) 25%, rgba(16, 185, 129, 0.15) 50%, transparent 75%),
-    radial-gradient(100% 100% at 50% 50%, rgba(8, 24, 18, 0.96) 0%, rgba(5, 16, 12, 0.99) 100%) !important;
+    radial-gradient(110% 120% at 85% 115%, rgba(255, 255, 255, 0.25) 0%, rgba(239, 68, 68, 0.38) 25%, rgba(185, 28, 28, 0.2) 50%, transparent 75%),
+    radial-gradient(100% 100% at 50% 50%, rgba(30, 8, 12, 0.96) 0%, rgba(16, 4, 7, 0.99) 100%) !important;
 }
 
 .galaxy-button.review-inner-glow .bodydrop {
-  background: radial-gradient(ellipse at 80% 120%, rgba(74, 222, 128, 0.22) 0%, rgba(34, 197, 94, 0.08) 45%, transparent 70%) !important;
-  opacity: 0.55 !important;
+  background: radial-gradient(ellipse at 80% 120%, rgba(239, 68, 68, 0.28) 0%, rgba(185, 28, 28, 0.1) 45%, transparent 70%) !important;
+  opacity: 0.6 !important;
 }
 
 .galaxy-button.review-inner-glow .text {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(134, 239, 172, 0.4) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 8px rgba(248, 113, 113, 0.5) !important;
 }
 
 .galaxy-button.review-inner-glow .star {
-  box-shadow: 0 0 3px #ffffff, 0 0 6px rgba(134, 239, 172, 0.6) !important;
+  box-shadow: 0 0 3px #ffffff, 0 0 6px rgba(248, 113, 113, 0.8) !important;
 }
 
 .galaxy-button.theme-subtle-green .text {

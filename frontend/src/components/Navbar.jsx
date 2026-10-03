@@ -4,6 +4,7 @@ import { ArrowUpRight, LogOut, MessageSquareText } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import GalaxyButton from './GalaxyButton';
 import { api } from '../services/api';
+import { playFeedbackNotificationSound } from '../utils/sound';
 
 const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, onOpenFeedback, isLanding, desktopNotice }) => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -12,6 +13,7 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
     return localStorage.getItem('hexa_has_unread_feedback') === 'true';
   });
   const latestFeedbackIdRef = useRef(null);
+  const lastPlayedReviewIdRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -44,6 +46,10 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
           if (hasNewId || hasCountIncreased) {
             setHasNewFeedback(true);
             localStorage.setItem('hexa_has_unread_feedback', 'true');
+            if (latestId && latestId !== lastPlayedReviewIdRef.current) {
+              lastPlayedReviewIdRef.current = latestId;
+              playFeedbackNotificationSound();
+            }
           }
         }
       } catch (err) {
@@ -219,9 +225,23 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
                 className={hasNewFeedback ? 'review-inner-glow' : ''}
                 onClick={handleFeedbackClick}
                 title={hasNewFeedback ? "New review received! Click to view" : "Open Judges Feedbacks in New Tab"}
-                icon={<MessageSquareText size={17} strokeWidth={2.4} color="#86efac" />}
+                icon={<MessageSquareText size={17} strokeWidth={2.4} color={hasNewFeedback ? '#fca5a5' : '#86efac'} />}
               >
                 Feedbacks
+                {hasNewFeedback && (
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: '7px',
+                      height: '7px',
+                      borderRadius: '50%',
+                      background: '#ef4444',
+                      boxShadow: '0 0 8px #ef4444',
+                      marginLeft: '6px',
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                )}
               </GalaxyButton>
             </div>
           )}

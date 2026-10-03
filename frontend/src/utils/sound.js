@@ -133,6 +133,59 @@ function synthesizeSuccessChime() {
   } catch (e) {}
 }
 
+export const playFeedbackNotificationSound = () => {
+  if (typeof window === 'undefined') return;
+
+  // Try playing soft.mp3
+  try {
+    const audio = new Audio('/soft.mp3');
+    audio.volume = 0.95;
+    const p = audio.play();
+    if (p !== undefined) {
+      p.catch(() => {});
+    }
+  } catch (e) {}
+
+  // Synthesize pleasant, crisp alert chime
+  synthesizeNotificationChime();
+};
+
+function synthesizeNotificationChime() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
+    // High-pitched pleasant dual bell chime (F6 -> A6)
+    const notes = [1396.91, 1760.00];
+    const startTime = ctx.currentTime + 0.04;
+
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime + idx * 0.14);
+
+      gain.gain.setValueAtTime(0, startTime + idx * 0.14);
+      gain.gain.linearRampToValueAtTime(0.4, startTime + idx * 0.14 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + idx * 0.14 + 0.42);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime + idx * 0.14);
+      osc.stop(startTime + idx * 0.14 + 0.48);
+    });
+
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try { navigator.vibrate([100, 50, 150]); } catch (e) {}
+    }
+  } catch (e) {}
+}
+
 export const playClickSound = playTapSound;
 
 export const initGlobalTapSound = () => {
