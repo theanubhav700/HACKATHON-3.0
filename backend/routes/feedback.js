@@ -2,23 +2,28 @@ const express = require('express');
 const router = express.Router();
 const Feedback = require('../models/Feedback');
 
-// Helper to format date
+// Helper to format date in Indian Standard Time (Asia/Kolkata)
 const formatReviewDate = (dateInput) => {
   try {
     const date = dateInput ? new Date(dateInput) : new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    let hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const strHours = String(hours).padStart(2, '0');
-
-    return `${day} ${month} ${year} • ${strHours}:${minutes} ${ampm}`;
+    const formatter = new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+    const parts = formatter.formatToParts(date);
+    const getPart = (type) => parts.find((p) => p.type === type)?.value || '';
+    const day = getPart('day');
+    const month = getPart('month');
+    const year = getPart('year');
+    const hour = getPart('hour');
+    const minute = getPart('minute');
+    const dayPeriod = (getPart('dayPeriod') || '').toUpperCase();
+    return `${day} ${month} ${year} • ${hour}:${minute} ${dayPeriod}`;
   } catch {
     return 'Recently';
   }
@@ -84,7 +89,15 @@ router.post('/', async (req, res) => {
 // Fetch all judge feedbacks, sorted by newest first
 router.get('/', async (req, res) => {
   try {
-    const feedbacks = await Feedback.find().sort({ createdAt: -1 });
+    const rawFeedbacks = await Feedback.find().sort({ createdAt: -1 });
+
+    const feedbacks = rawFeedbacks.map((fb) => {
+      const doc = fb.toObject();
+      if (doc.createdAt) {
+        doc.formattedDate = formatReviewDate(doc.createdAt);
+      }
+      return doc;
+    });
 
     const total = feedbacks.length;
     const sum = feedbacks.reduce((acc, curr) => acc + (Number(curr.rating) || 0), 0);

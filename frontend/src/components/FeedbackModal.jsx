@@ -13,6 +13,34 @@ import {
   Clock
 } from 'lucide-react';
 
+const formatFeedbackDate = (fb) => {
+  if (!fb) return 'Recently';
+  const rawDate = fb.createdAt || fb.date;
+  if (rawDate) {
+    try {
+      const date = new Date(rawDate);
+      if (!isNaN(date.getTime())) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const strHours = String(hours).padStart(2, '0');
+
+        return `${day} ${month} ${year} • ${strHours}:${minutes} ${ampm}`;
+      }
+    } catch {
+      // fallback
+    }
+  }
+  return fb.formattedDate || 'Recently';
+};
+
 const FeedbackModal = ({ isOpen, onClose }) => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -363,7 +391,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '2px' }}>
                         <Clock size={11} color="var(--text-dim)" />
                         <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
-                          {fb.formattedDate || new Date(fb.createdAt).toLocaleString()}
+                          {formatFeedbackDate(fb)}
                         </span>
                       </div>
                     </div>
