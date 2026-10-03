@@ -440,20 +440,19 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                   </div>
                 </div>
 
-                {/* Written Review Quote */}
+                {/* Written Review */}
                 <div
                   style={{
                     background: 'var(--bg-card-hover)',
-                    borderRadius: '12px',
-                    padding: '0.85rem 1rem',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '10px',
+                    padding: '0.8rem 1rem',
                     fontSize: '0.85rem',
                     color: 'var(--text-main)',
                     lineHeight: '1.5',
-                    fontStyle: 'italic',
-                    borderLeft: '3px solid #6366f1',
                   }}
                 >
-                  "{fb.review}"
+                  {fb.review}
                 </div>
               </div>
             ))

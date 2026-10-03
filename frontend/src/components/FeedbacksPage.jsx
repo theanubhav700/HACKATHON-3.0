@@ -227,41 +227,8 @@ const FeedbacksPage = ({ onBack }) => {
             gap: '1rem',
           }}
         >
-          {/* Left: Back Button, Brand & Live Indicator */}
+          {/* Left: Brand Logo & Title */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-            {/* Back button */}
-            <button
-              onClick={handleGoBack}
-              type="button"
-              id="feedbacks-back-btn"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                background: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--text-main)',
-                padding: '0.45rem 0.85rem',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                fontSize: '0.82rem',
-                fontWeight: '700',
-                transition: 'all 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
-                e.currentTarget.style.borderColor = 'var(--border-subtle)';
-              }}
-              title="Back to HexaPay"
-            >
-              <ArrowLeft size={16} strokeWidth={2.4} />
-              <span>Back</span>
-            </button>
-
             <div
               onClick={handleGoBack}
               role="button"
@@ -273,6 +240,7 @@ const FeedbacksPage = ({ onBack }) => {
                 cursor: 'pointer',
                 userSelect: 'none',
               }}
+              title="Click to go back"
             >
               <div
                 style={{
@@ -314,39 +282,6 @@ const FeedbacksPage = ({ onBack }) => {
                   Judges Real-Time Evaluation Dashboard
                 </div>
               </div>
-            </div>
-
-            {/* Live Sync Badge */}
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                background: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.35)',
-                padding: '0.3rem 0.75rem',
-                borderRadius: '9999px',
-                fontSize: '0.75rem',
-                fontWeight: '700',
-                color: '#10b981',
-              }}
-            >
-              <span
-                style={{
-                  width: '7px',
-                  height: '7px',
-                  borderRadius: '50%',
-                  background: '#10b981',
-                  boxShadow: '0 0 10px #10b981',
-                  animation: 'pulse 1.8s infinite',
-                }}
-              />
-              <span>Live MongoDB Feed</span>
-              {lastUpdated && (
-                <span style={{ color: 'var(--text-dim)', fontSize: '0.7rem', marginLeft: '2px' }}>
-                  ({lastUpdated})
-                </span>
-              )}
             </div>
           </div>
 
@@ -785,22 +720,20 @@ const FeedbacksPage = ({ onBack }) => {
                   </div>
                 </div>
 
-                {/* Feedback Quote Body */}
+                {/* Feedback Review Body */}
                 <div
                   style={{
                     flex: 1,
-                    background: 'var(--bg-glass)',
+                    background: 'var(--bg-card-hover)',
                     border: '1px solid var(--border-subtle)',
-                    borderRadius: '14px',
-                    padding: '1.1rem 1.25rem',
-                    fontSize: '0.92rem',
+                    borderRadius: '12px',
+                    padding: '0.9rem 1.15rem',
+                    fontSize: '0.9rem',
                     color: 'var(--text-main)',
-                    lineHeight: '1.6',
-                    fontStyle: 'italic',
-                    borderLeft: '4px solid #f59e0b',
+                    lineHeight: '1.55',
                   }}
                 >
-                  "{fb.review}"
+                  {fb.review}
                 </div>
 
                 {/* Card Footer: Category badge & Actions */}
