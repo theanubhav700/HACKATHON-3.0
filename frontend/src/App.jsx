@@ -329,12 +329,12 @@ const AppContent = () => {
     setCurrentView(view);
     if (typeof window !== 'undefined') {
       if (view === 'feedbacks') {
-        window.history.pushState({ view: 'feedbacks' }, '', '/?view=feedbacks');
+        window.history.pushState({ view: 'feedbacks', _spa: true }, '', '/?view=feedbacks');
       } else {
         if (window.history.state?.view === 'feedbacks') {
           window.history.back();
         } else {
-          window.history.pushState({ view: 'home' }, '', '/');
+          window.history.pushState({ view: 'home', _spa: true }, '', '/');
         }
       }
     }
@@ -352,23 +352,46 @@ const AppContent = () => {
   };
 
   useEffect(() => {
-    // Ensure initial history state is set
-    if (typeof window !== 'undefined' && !window.history.state) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isFb = urlParams.get('view') === 'feedbacks';
-      window.history.replaceState({ view: isFb ? 'feedbacks' : 'home' }, '', window.location.href);
+    if (typeof window === 'undefined') return;
+
+    // Always set the initial history state so we know what view we're on
+    const urlParams = new URLSearchParams(window.location.search);
+    const isFbOnLoad = urlParams.get('view') === 'feedbacks';
+
+    if (!window.history.state) {
+      // No state yet — set it
+      window.history.replaceState({ view: isFbOnLoad ? 'feedbacks' : 'home', _spa: true }, '', window.location.href);
+    }
+
+    // Push a sentinel "home" guard entry if we're on the home view.
+    // This means the browser always has an in-app history entry "behind" the current one,
+    // so a trackpad swipe-back lands on this sentinel instead of leaving the app entirely.
+    if (!isFbOnLoad) {
+      // Replace current with a marked home state, then push a fresh one on top
+      window.history.replaceState({ view: 'home', _spa: true, _sentinel: true }, '', '/');
+      window.history.pushState({ view: 'home', _spa: true }, '', '/');
     }
 
     const handlePopState = (e) => {
-      const urlParams = new URLSearchParams(window.location.search);
+      const state = e.state;
+
+      // If we popped back to the sentinel (or there's no state / outside SPA), stay in app
+      if (!state || state._sentinel || !state._spa) {
+        // User swiped back past our app — push a fresh home state to prevent leaving
+        window.history.pushState({ view: 'home', _spa: true }, '', '/');
+        setCurrentView('home');
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
       const isFb = (
-        urlParams.get('view') === 'feedbacks' ||
+        params.get('view') === 'feedbacks' ||
         window.location.pathname === '/feedbacks' ||
-        window.location.hash === '#feedbacks' ||
-        e.state?.view === 'feedbacks'
+        state?.view === 'feedbacks'
       );
       setCurrentView(isFb ? 'feedbacks' : 'home');
     };
+
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
