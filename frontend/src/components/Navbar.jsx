@@ -6,7 +6,7 @@ import GalaxyButton from './GalaxyButton';
 import { api } from '../services/api';
 import { playFeedbackNotificationSound } from '../utils/sound';
 
-const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, onOpenFeedback, isLanding, desktopNotice }) => {
+const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, onOpenFeedback, onOpenFeedbacksPage, isLanding, desktopNotice }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const [hasNewFeedback, setHasNewFeedback] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -217,14 +217,19 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
           {isLanding && (
             <div style={{ position: 'relative' }}>
               <GalaxyButton
-                href="/?view=feedbacks"
-                target="_blank"
-                rel="noopener noreferrer"
                 shape="pill"
                 variant="subtle-green"
                 className={hasNewFeedback ? 'review-inner-glow' : ''}
-                onClick={handleFeedbackClick}
-                title={hasNewFeedback ? "New review received! Click to view" : "Open Judges Feedbacks in New Tab"}
+                onClick={(e) => {
+                  if (e && e.preventDefault) e.preventDefault();
+                  handleFeedbackClick();
+                  if (onOpenFeedbacksPage) {
+                    onOpenFeedbacksPage();
+                  } else {
+                    window.location.href = '/?view=feedbacks';
+                  }
+                }}
+                title={hasNewFeedback ? "New review received! Click to view" : "View Judges Feedbacks"}
                 icon={<MessageSquareText size={17} strokeWidth={2.4} color={hasNewFeedback ? '#fca5a5' : '#86efac'} />}
               >
                 Feedbacks

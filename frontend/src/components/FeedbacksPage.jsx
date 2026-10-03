@@ -13,6 +13,7 @@ import {
   Search,
   Filter,
   ArrowUpRight,
+  ArrowLeft,
   TrendingUp,
   Sparkles,
   Zap
@@ -46,7 +47,7 @@ const formatFeedbackDate = (fb) => {
   return fb.formattedDate || 'Recently';
 };
 
-const FeedbacksPage = () => {
+const FeedbacksPage = ({ onBack }) => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -54,6 +55,17 @@ const FeedbacksPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStar, setSelectedStar] = useState('ALL');
   const [lastUpdated, setLastUpdated] = useState('');
+
+  const handleGoBack = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (onBack) {
+      onBack();
+    } else if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back();
+    } else if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+  };
 
   const loadFeedbacks = async (isManual = false) => {
     if (isManual) setRefreshing(true);
@@ -150,16 +162,51 @@ const FeedbacksPage = () => {
             gap: '1rem',
           }}
         >
-          {/* Left: Brand & Live Indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <a
-              href="/"
+          {/* Left: Back Button, Brand & Live Indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            {/* Back button */}
+            <button
+              onClick={handleGoBack}
+              type="button"
+              id="feedbacks-back-btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--text-main)',
+                padding: '0.45rem 0.85rem',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '0.82rem',
+                fontWeight: '700',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                e.currentTarget.style.borderColor = 'var(--border-subtle)';
+              }}
+              title="Back to HexaPay"
+            >
+              <ArrowLeft size={16} strokeWidth={2.4} />
+              <span>Back</span>
+            </button>
+
+            <div
+              onClick={handleGoBack}
+              role="button"
+              tabIndex={0}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.65rem',
-                textDecoration: 'none',
-                color: 'inherit',
+                cursor: 'pointer',
+                userSelect: 'none',
               }}
             >
               <div
@@ -202,7 +249,7 @@ const FeedbacksPage = () => {
                   Judges Real-Time Evaluation Dashboard
                 </div>
               </div>
-            </a>
+            </div>
 
             {/* Live Sync Badge */}
             <div

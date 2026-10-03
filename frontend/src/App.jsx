@@ -306,23 +306,64 @@ const Dashboard = () => {
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
   
-  // Standalone Full-Page Route for Judges Feedbacks (opened in new tab)
-  const isFeedbacksPage = () => {
-    if (typeof window === 'undefined') return false;
+  // Helper to detect mobile viewport (width <= 768px)
+  const isMobileViewport = () => typeof window !== 'undefined' && window.innerWidth <= 768;
+
+  // Track full-page views within project ('home' or 'feedbacks')
+  const [currentView, setCurrentView] = useState(() => {
+    if (typeof window === 'undefined') return 'home';
     const urlParams = new URLSearchParams(window.location.search);
     return (
       urlParams.get('view') === 'feedbacks' ||
       window.location.pathname === '/feedbacks' ||
       window.location.hash === '#feedbacks'
-    );
+    ) ? 'feedbacks' : 'home';
+  });
+
+  const navigateTo = (view) => {
+    setCurrentView(view);
+    if (typeof window !== 'undefined') {
+      if (view === 'feedbacks') {
+        window.history.pushState({ view: 'feedbacks' }, '', '/?view=feedbacks');
+      } else {
+        if (window.history.state?.view === 'feedbacks') {
+          window.history.back();
+        } else {
+          window.history.pushState({ view: 'home' }, '', '/');
+        }
+      }
+    }
   };
 
-  if (isFeedbacksPage()) {
-    return <FeedbacksPage />;
-  }
+  const handleBackFromFeedbacks = () => {
+    if (typeof window !== 'undefined' && window.history.state?.view === 'feedbacks') {
+      window.history.back();
+    } else {
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({ view: 'home' }, '', '/');
+      }
+      setCurrentView('home');
+    }
+  };
 
-  // Helper to detect mobile viewport (width <= 768px)
-  const isMobileViewport = () => typeof window !== 'undefined' && window.innerWidth <= 768;
+  useEffect(() => {
+    const handlePopState = (e) => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isFb = (
+        urlParams.get('view') === 'feedbacks' ||
+        window.location.pathname === '/feedbacks' ||
+        window.location.hash === '#feedbacks' ||
+        e.state?.view === 'feedbacks'
+      );
+      setCurrentView(isFb ? 'feedbacks' : 'home');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  if (currentView === 'feedbacks') {
+    return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
+  }
 
   // On mobile: immediately open transaction view! On desktop: start on landing page
   const [isAppOpen, setIsAppOpen] = useState(() => isMobileViewport());
@@ -361,6 +402,7 @@ const AppContent = () => {
           onOpenProfile={handleTransactionClick}
           onOpenAuth={handleTransactionClick}
           onOpenFeedback={() => setIsLandingFeedbackOpen(true)}
+          onOpenFeedbacksPage={() => navigateTo('feedbacks')}
           desktopNotice={desktopNotice}
         />
 
