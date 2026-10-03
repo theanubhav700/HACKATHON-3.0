@@ -320,6 +320,11 @@ const AppContent = () => {
     ) ? 'feedbacks' : 'home';
   });
 
+  // On mobile: immediately open transaction view! On desktop: start on landing page
+  const [isAppOpen, setIsAppOpen] = useState(() => isMobileViewport());
+  const [desktopNotice, setDesktopNotice] = useState('');
+  const [isLandingFeedbackOpen, setIsLandingFeedbackOpen] = useState(false);
+
   const navigateTo = (view) => {
     setCurrentView(view);
     if (typeof window !== 'undefined') {
@@ -347,6 +352,13 @@ const AppContent = () => {
   };
 
   useEffect(() => {
+    // Ensure initial history state is set
+    if (typeof window !== 'undefined' && !window.history.state) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isFb = urlParams.get('view') === 'feedbacks';
+      window.history.replaceState({ view: isFb ? 'feedbacks' : 'home' }, '', window.location.href);
+    }
+
     const handlePopState = (e) => {
       const urlParams = new URLSearchParams(window.location.search);
       const isFb = (
@@ -360,15 +372,6 @@ const AppContent = () => {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
-
-  if (currentView === 'feedbacks') {
-    return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
-  }
-
-  // On mobile: immediately open transaction view! On desktop: start on landing page
-  const [isAppOpen, setIsAppOpen] = useState(() => isMobileViewport());
-  const [desktopNotice, setDesktopNotice] = useState('');
-  const [isLandingFeedbackOpen, setIsLandingFeedbackOpen] = useState(false);
 
   useEffect(() => {
     // If opened or resized on mobile, ensure transaction page is open
@@ -391,6 +394,11 @@ const AppContent = () => {
     }
     setIsAppOpen(true);
   };
+
+  // Unconditional hook execution complete - now safe to return views
+  if (currentView === 'feedbacks') {
+    return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
+  }
 
   // Initial Landing Screen (Desktop only when not opened)
   if (!isAppOpen) {
