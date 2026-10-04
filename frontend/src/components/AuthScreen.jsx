@@ -345,7 +345,7 @@ const AuthScreen = ({ onOpenFeedbacks }) => {
 
         {/* Feedbacks button at bottom of mobile auth screen */}
         {onOpenFeedbacks && (
-          <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ marginTop: 'auto', paddingTop: '1.25rem', paddingBottom: '0.25rem', display: 'flex', justifyContent: 'center' }}>
             <GalaxyButton
               shape="pill"
               variant="subtle-green"

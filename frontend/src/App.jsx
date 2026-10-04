@@ -575,7 +575,7 @@ const AppContent = () => {
           onOpenProfile={() => {}}
           onOpenAuth={() => {}}
         />
-        <main className="main-content auth-main-content" style={{ width: '100%' }}>
+        <main className="main-content auth-main-content" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <AuthScreen onOpenFeedbacks={() => navigateTo('feedbacks')} />
         </main>
       </div>

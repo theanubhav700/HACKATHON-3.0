@@ -216,17 +216,7 @@ const FeedbacksPage = ({ onBack }) => {
           width: '100%',
         }}
       >
-        <div
-          style={{
-            maxWidth: '1440px',
-            margin: '0 auto',
-            padding: '0.85rem 1.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '1rem',
-          }}
-        >
+        <div className="feedback-header-inner">
           {/* Left: Brand Logo & Title */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <div
@@ -267,6 +257,7 @@ const FeedbacksPage = ({ onBack }) => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                   <span
+                    className="feedback-header-brand-title"
                     style={{
                       fontFamily: 'var(--font-heading)',
                       fontWeight: '900',
@@ -278,7 +269,7 @@ const FeedbacksPage = ({ onBack }) => {
                     IDC 3.0 <span style={{ color: '#f59e0b' }}>Feedbacks</span>
                   </span>
                 </div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: '500' }}>
+                <div className="feedback-header-subtitle" style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: '500' }}>
                   Judges Real-Time Evaluation Dashboard
                 </div>
               </div>
@@ -286,7 +277,7 @@ const FeedbacksPage = ({ onBack }) => {
           </div>
 
           {/* Right: Actions & Theme */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <button
               onClick={() => loadFeedbacks(true)}
               disabled={refreshing}
@@ -295,7 +286,7 @@ const FeedbacksPage = ({ onBack }) => {
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border-subtle)',
                 color: 'var(--text-main)',
-                padding: '0.45rem 0.85rem',
+                padding: '0.45rem 0.75rem',
                 borderRadius: '10px',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -308,7 +299,7 @@ const FeedbacksPage = ({ onBack }) => {
               }}
             >
               <RotateCw size={14} className={refreshing ? 'animate-spin' : ''} />
-              <span>{refreshing ? 'Syncing...' : 'Refresh'}</span>
+              <span className="feedback-sync-btn-text">{refreshing ? 'Syncing...' : 'Refresh'}</span>
             </button>
 
             <ThemeToggle />
@@ -317,30 +308,9 @@ const FeedbacksPage = ({ onBack }) => {
       </header>
 
       {/* Main Container */}
-      <main
-        style={{
-          flex: 1,
-          maxWidth: '1440px',
-          width: '100%',
-          margin: '0 auto',
-          padding: '2rem 1.75rem 3.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2rem',
-        }}
-      >
+      <main className="feedback-main-container">
         {/* Hero Section Header */}
-        <div
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: '24px',
-            padding: '2rem 2.25rem',
-            boxShadow: 'var(--shadow-card)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
+        <div className="feedback-hero-card">
           {/* Ambient Glow Gradient */}
           <div
             style={{
@@ -360,59 +330,25 @@ const FeedbacksPage = ({ onBack }) => {
               <Sparkles size={16} />
               <span>Judges Evaluation Portal</span>
             </div>
-            <h1
-              style={{
-                fontSize: '2.4rem',
-                fontWeight: '900',
-                letterSpacing: '-0.03em',
-                color: 'var(--text-main)',
-                margin: 0,
-                lineHeight: '1.2',
-              }}
-            >
+            <h1 className="feedback-hero-title">
               Official Feedback & Scoring
             </h1>
-            <p
-              style={{
-                fontSize: '0.98rem',
-                color: 'var(--text-dim)',
-                marginTop: '0.65rem',
-                maxWidth: '720px',
-                lineHeight: '1.6',
-              }}
-            >
+            <p className="feedback-hero-subtitle">
               Real-time evaluations submitted by judges from the external feedback portal. All entries are stored securely in MongoDB and synchronize automatically across devices.
             </p>
           </div>
 
-          {/* 4 Stat Metric Cards (Full desktop row) */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '1.25rem',
-              marginTop: '1.75rem',
-            }}
-          >
+          {/* 4 Stat Metric Cards (Full desktop row / Responsive 2x2 grid on mobile) */}
+          <div className="feedback-stats-grid">
             {/* Metric 1: Total */}
-            <div
-              style={{
-                background: 'var(--bg-glass)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '16px',
-                padding: '1.1rem 1.35rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.35rem',
-              }}
-            >
+            <div className="feedback-stat-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase' }}>
+                <span className="feedback-stat-title" style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase' }}>
                   Total Evaluations
                 </span>
                 <MessageSquare size={18} color="#6366f1" />
               </div>
-              <div style={{ fontSize: '2.1rem', fontWeight: '900', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
+              <div className="feedback-stat-value" style={{ fontSize: '2.1rem', fontWeight: '900', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
                 {stats.count}
               </div>
               <div style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: '600' }}>
@@ -421,32 +357,22 @@ const FeedbacksPage = ({ onBack }) => {
             </div>
 
             {/* Metric 2: Average Rating */}
-            <div
-              style={{
-                background: 'var(--bg-glass)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '16px',
-                padding: '1.1rem 1.35rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.35rem',
-              }}
-            >
+            <div className="feedback-stat-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase' }}>
+                <span className="feedback-stat-title" style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase' }}>
                   Overall Average
                 </span>
                 <Star size={18} color="#f59e0b" fill="#f59e0b" />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                <span style={{ fontSize: '2.1rem', fontWeight: '900', color: '#f59e0b', letterSpacing: '-0.02em' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap' }}>
+                <span className="feedback-stat-value" style={{ fontSize: '2.1rem', fontWeight: '900', color: '#f59e0b', letterSpacing: '-0.02em' }}>
                   {stats.average}
                 </span>
-                <div style={{ display: 'flex', gap: '3px' }}>
+                <div style={{ display: 'flex', gap: '2px' }}>
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star
                       key={s}
-                      size={17}
+                      size={14}
                       fill={s <= Math.round(Number(stats.average)) ? '#f59e0b' : 'none'}
                       color="#f59e0b"
                     />
@@ -459,24 +385,14 @@ const FeedbacksPage = ({ onBack }) => {
             </div>
 
             {/* Metric 3: 5-Star Reviews */}
-            <div
-              style={{
-                background: 'var(--bg-glass)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '16px',
-                padding: '1.1rem 1.35rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.35rem',
-              }}
-            >
+            <div className="feedback-stat-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase' }}>
+                <span className="feedback-stat-title" style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase' }}>
                   5-Star Excellence
                 </span>
                 <Award size={18} color="#10b981" />
               </div>
-              <div style={{ fontSize: '2.1rem', fontWeight: '900', color: '#10b981', letterSpacing: '-0.02em' }}>
+              <div className="feedback-stat-value" style={{ fontSize: '2.1rem', fontWeight: '900', color: '#10b981', letterSpacing: '-0.02em' }}>
                 {stats.fiveStarCount}
               </div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: '500' }}>
@@ -485,24 +401,14 @@ const FeedbacksPage = ({ onBack }) => {
             </div>
 
             {/* Metric 4: Cloud Status */}
-            <div
-              style={{
-                background: 'var(--bg-glass)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '16px',
-                padding: '1.1rem 1.35rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.35rem',
-              }}
-            >
+            <div className="feedback-stat-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase' }}>
+                <span className="feedback-stat-title" style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase' }}>
                   Sync Engine
                 </span>
                 <ShieldCheck size={18} color="#0284c7" />
               </div>
-              <div style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--text-main)', marginTop: '0.35rem' }}>
+              <div className="feedback-stat-value" style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--text-main)', marginTop: '0.35rem' }}>
                 MongoDB Cloud
               </div>
               <div style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: '600' }}>
@@ -513,25 +419,17 @@ const FeedbacksPage = ({ onBack }) => {
         </div>
 
         {/* Filter and Search Bar */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '1rem',
-          }}
-        >
+        <div className="feedback-controls-bar">
           {/* Star Filter Pills */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div className="feedback-star-filters" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
             {['ALL', '5', '4', '3', '2', '1'].map((star) => (
               <button
                 key={star}
                 onClick={() => setSelectedStar(star)}
                 style={{
-                  padding: '0.45rem 0.95rem',
+                  padding: '0.42rem 0.85rem',
                   borderRadius: '9999px',
-                  fontSize: '0.82rem',
+                  fontSize: '0.8rem',
                   fontWeight: '700',
                   border: '1px solid',
                   borderColor: selectedStar === star ? '#f59e0b' : 'var(--border-subtle)',
@@ -541,11 +439,13 @@ const FeedbacksPage = ({ onBack }) => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.3rem',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                   transition: 'all 0.15s ease',
                 }}
               >
                 {star === 'ALL' ? (
-                  <span>All Reviews ({feedbacks.length})</span>
+                  <span>All ({feedbacks.length})</span>
                 ) : (
                   <>
                     <span>{star}</span>
@@ -557,12 +457,7 @@ const FeedbacksPage = ({ onBack }) => {
           </div>
 
           {/* Search Box */}
-          <div
-            style={{
-              position: 'relative',
-              minWidth: '280px',
-            }}
-          >
+          <div className="feedback-search-wrapper">
             <Search
               size={16}
               color="var(--text-dim)"
@@ -575,6 +470,7 @@ const FeedbacksPage = ({ onBack }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 width: '100%',
+                boxSizing: 'border-box',
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: '12px',
@@ -587,7 +483,7 @@ const FeedbacksPage = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Reviews Grid (Desktop 2/3 Column Grid) */}
+        {/* Reviews Grid */}
         {loading ? (
           <div style={{ padding: '5rem 1rem', textAlign: 'center', color: 'var(--text-dim)' }}>
             <RotateCw size={32} className="animate-spin" style={{ margin: '0 auto 1rem' }} />
@@ -628,74 +524,44 @@ const FeedbacksPage = ({ onBack }) => {
             </p>
           </div>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
-              gap: '1.35rem',
-            }}
-          >
+          <div className="feedback-reviews-grid">
             {filteredFeedbacks.map((fb) => (
               <div
                 key={fb._id}
-                style={{
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '20px',
-                  padding: '1.5rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                  boxShadow: 'var(--shadow-card)',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                  position: 'relative',
-                }}
+                className="feedback-review-card"
               >
                 {/* Card Top: Judge Avatar + Name + Stars */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                    <div
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '14px',
-                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#ffffff',
-                        fontWeight: '900',
-                        fontSize: '1.15rem',
-                        boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)',
-                        flexShrink: 0,
-                      }}
-                    >
+                <div className="feedback-card-top">
+                  <div className="feedback-judge-info">
+                    <div className="feedback-judge-avatar">
                       {fb.judgeName ? fb.judgeName.charAt(0).toUpperCase() : 'J'}
                     </div>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-main)' }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <span className="feedback-judge-name" style={{ fontSize: '1.02rem', fontWeight: '800', color: 'var(--text-main)' }}>
                           {fb.judgeName}
                         </span>
                         <span
+                          className="feedback-judge-badge"
                           style={{
-                            fontSize: '0.68rem',
+                            fontSize: '0.66rem',
                             fontWeight: '800',
                             color: '#6366f1',
                             background: 'rgba(99, 102, 241, 0.12)',
                             border: '1px solid rgba(99, 102, 241, 0.25)',
-                            padding: '0.12rem 0.5rem',
+                            padding: '0.1rem 0.45rem',
                             borderRadius: '6px',
                             letterSpacing: '0.04em',
                             textTransform: 'uppercase',
+                            flexShrink: 0,
                           }}
                         >
                           Judge
                         </span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '3px' }}>
-                        <Clock size={12} color="var(--text-dim)" />
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '2px' }}>
+                        <Clock size={12} color="var(--text-dim)" style={{ flexShrink: 0 }} />
+                        <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
                           {formatFeedbackDate(fb)}
                         </span>
                       </div>
@@ -703,41 +569,30 @@ const FeedbacksPage = ({ onBack }) => {
                   </div>
 
                   {/* Rating Display */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                    <div style={{ display: 'flex', gap: '2px' }}>
+                  <div className="feedback-rating-badge">
+                    <div className="feedback-rating-stars" style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
                       {[1, 2, 3, 4, 5].map((s) => (
                         <Star
                           key={s}
-                          size={16}
+                          size={14}
                           fill={s <= Number(fb.rating) ? '#f59e0b' : 'none'}
                           color="#f59e0b"
                         />
                       ))}
                     </div>
-                    <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#f59e0b' }}>
+                    <span className="feedback-rating-number" style={{ fontSize: '0.78rem', fontWeight: '800', color: '#f59e0b' }}>
                       {fb.rating}.0 / 5.0
                     </span>
                   </div>
                 </div>
 
                 {/* Feedback Review Body */}
-                <div
-                  style={{
-                    flex: 1,
-                    background: 'var(--bg-card-hover)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '12px',
-                    padding: '0.9rem 1.15rem',
-                    fontSize: '0.9rem',
-                    color: 'var(--text-main)',
-                    lineHeight: '1.55',
-                  }}
-                >
+                <div className="feedback-review-content">
                   {fb.review}
                 </div>
 
                 {/* Card Footer: Category badge & Actions */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.25rem' }}>
+                <div className="feedback-card-footer">
                   <span
                     style={{
                       fontSize: '0.72rem',
@@ -746,6 +601,10 @@ const FeedbacksPage = ({ onBack }) => {
                       background: 'var(--bg-card-hover)',
                       padding: '0.25rem 0.65rem',
                       borderRadius: '8px',
+                      maxWidth: '100%',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {fb.category || 'IDC Hackathon 3.0'}
@@ -766,6 +625,7 @@ const FeedbacksPage = ({ onBack }) => {
                       gap: '0.25rem',
                       fontSize: '0.75rem',
                       transition: 'color 0.15s ease',
+                      flexShrink: 0,
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-dim)')}
