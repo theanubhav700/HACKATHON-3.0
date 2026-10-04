@@ -167,22 +167,7 @@ const BalanceCard = () => {
           {showBalance ? formattedBalance : '₹ ••••••••'}
         </div>
 
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.35rem',
-          marginTop: '0.5rem',
-          fontSize: '0.75rem',
-          fontWeight: '600',
-          color: isDark ? '#34d399' : '#059669',
-          background: isDark ? 'rgba(16, 185, 129, 0.15)' : '#ecfdf5',
-          padding: '0.25rem 0.65rem',
-          borderRadius: '9999px',
-          border: isDark ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid #a7f3d0',
-        }}>
-          <ShieldCheck size={14} color={isDark ? '#34d399' : '#059669'} />
-          <span>Fictional Funds (Demo Only)</span>
-        </div>
+
       </div>
 
       {/* Bottom row: Masked Account & Virtual UPI ID */}

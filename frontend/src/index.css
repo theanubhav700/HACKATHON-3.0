@@ -78,6 +78,7 @@ html {
   overscroll-behavior-x: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
 }
 
 body {
@@ -95,6 +96,15 @@ body {
   overscroll-behavior-x: auto;
   overscroll-behavior-y: contain;
   transition: background-color 0.25s ease, color 0.25s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 [data-theme='dark'] body {
@@ -1723,6 +1733,28 @@ button:disabled {
 .top-incoming-notification-wrapper {
   pointer-events: auto;
   user-select: none;
+}
+
+/* Subtle & Realistic Vibration / Shake Animation for Security Lock */
+@keyframes lockStrongVibrate {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  2%, 8% { transform: translate(-1px, 0) rotate(-1.5deg); }
+  4%, 10% { transform: translate(1px, -0.5px) rotate(1.5deg); }
+  6%, 12% { transform: translate(-0.8px, 0.5px) rotate(-1deg); }
+  14% { transform: translate(0.5px, 0) rotate(0.5deg); }
+  16%, 60% { transform: translate(0, 0) rotate(0deg); }
+  62%, 68% { transform: translate(-1px, 0) rotate(-1.5deg); }
+  64%, 70% { transform: translate(1px, -0.5px) rotate(1.5deg); }
+  66%, 72% { transform: translate(-0.6px, 0.4px) rotate(-0.5deg); }
+  74%, 98% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.lock-vibrate-strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: lockStrongVibrate 2.2s infinite ease-in-out;
+  transform-origin: center center;
 }
 
 

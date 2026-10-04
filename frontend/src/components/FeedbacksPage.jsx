@@ -161,7 +161,7 @@ const FeedbacksPage = ({ onBack }) => {
   };
 
   useEffect(() => {
-    document.title = 'IDC 3.0 - Judges Feedbacks';
+    document.title = 'HexaPay - Judges Feedbacks';
     loadFeedbacks();
     // Auto-poll every 3 seconds for live sync
     const timer = setInterval(() => {

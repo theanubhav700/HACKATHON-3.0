@@ -32,7 +32,8 @@ import {
   Zap,
   TrendingUp,
   RefreshCw,
-  CheckCircle2
+  CheckCircle2,
+  Smartphone
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -180,15 +181,6 @@ const Dashboard = () => {
                 </div>
               ))}
 
-              {/* Divider */}
-              <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '0.65rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <RefreshCw size={12} color="#10b981" />
-                  <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: '600' }}>
-                    Live instant sync active • Balance & transactions update without reload
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -308,6 +300,15 @@ const AppContent = () => {
   
   // Helper to detect mobile viewport (width <= 768px)
   const isMobileViewport = () => typeof window !== 'undefined' && window.innerWidth <= 768;
+  const [isMobile, setIsMobile] = useState(() => isMobileViewport());
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Track full-page views within project ('home' or 'feedbacks')
   const [currentView, setCurrentView] = useState(() => {
@@ -319,11 +320,6 @@ const AppContent = () => {
       window.location.hash === '#feedbacks'
     ) ? 'feedbacks' : 'home';
   });
-
-  // On mobile: immediately open transaction view! On desktop: start on landing page
-  const [isAppOpen, setIsAppOpen] = useState(() => isMobileViewport());
-  const [desktopNotice, setDesktopNotice] = useState('');
-  const [isLandingFeedbackOpen, setIsLandingFeedbackOpen] = useState(false);
 
   const navigateTo = (view) => {
     setCurrentView(view);
@@ -359,15 +355,11 @@ const AppContent = () => {
     const isFbOnLoad = urlParams.get('view') === 'feedbacks';
 
     if (!window.history.state) {
-      // No state yet — set it
       window.history.replaceState({ view: isFbOnLoad ? 'feedbacks' : 'home', _spa: true }, '', window.location.href);
     }
 
     // Push a sentinel "home" guard entry if we're on the home view.
-    // This means the browser always has an in-app history entry "behind" the current one,
-    // so a trackpad swipe-back lands on this sentinel instead of leaving the app entirely.
     if (!isFbOnLoad) {
-      // Replace current with a marked home state, then push a fresh one on top
       window.history.replaceState({ view: 'home', _spa: true, _sentinel: true }, '', '/');
       window.history.pushState({ view: 'home', _spa: true }, '', '/');
     }
@@ -377,7 +369,6 @@ const AppContent = () => {
 
       // If we popped back to the sentinel (or there's no state / outside SPA), stay in app
       if (!state || state._sentinel || !state._spa) {
-        // User swiped back past our app — push a fresh home state to prevent leaving
         window.history.pushState({ view: 'home', _spa: true }, '', '/');
         setCurrentView('home');
         return;
@@ -396,142 +387,146 @@ const AppContent = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  useEffect(() => {
-    // If opened or resized on mobile, ensure transaction page is open
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setIsAppOpen(true);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Handle transaction click: on desktop, disable click and show notice; on mobile, open
-  const handleTransactionClick = (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    if (window.innerWidth > 768) {
-      setDesktopNotice('This is only for payment gateway');
-      setTimeout(() => setDesktopNotice(''), 4000);
-      return;
-    }
-    setIsAppOpen(true);
-  };
-
   // Unconditional hook execution complete - now safe to return views
-  if (currentView === 'feedbacks') {
-    return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
-  }
-
-  // Initial Landing Screen (Desktop only when not opened)
-  if (!isAppOpen) {
+  // Desktop & Laptop Screen: Show "Only Made For Mobile Device" message
+  if (!isMobile) {
     return (
-      <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', position: 'relative' }}>
-        <Navbar
-          isLanding={true}
-          onTransactionClick={handleTransactionClick}
-          onOpenProfile={handleTransactionClick}
-          onOpenAuth={handleTransactionClick}
-          onOpenFeedback={() => setIsLandingFeedbackOpen(true)}
-          onOpenFeedbacksPage={() => navigateTo('feedbacks')}
-          desktopNotice={desktopNotice}
+      <div
+        style={{
+          minHeight: '100vh',
+          width: '100vw',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'radial-gradient(ellipse at 50% 35%, rgba(239, 68, 68, 0.08) 0%, #06080d 75%)',
+          color: '#ffffff',
+          padding: '1.5rem',
+          boxSizing: 'border-box',
+          position: 'relative',
+          overflow: 'hidden',
+          fontFamily: 'var(--font-heading, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
+        }}
+      >
+        {/* Subtle grid background */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+            pointerEvents: 'none',
+          }}
         />
 
-        <FeedbackModal
-          isOpen={isLandingFeedbackOpen}
-          onClose={() => setIsLandingFeedbackOpen(false)}
-        />
-
-        {/* Desktop Notice Toast */}
-        {desktopNotice && (
+        {/* Central Card */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            maxWidth: '460px',
+            width: '100%',
+            background: 'rgba(15, 18, 26, 0.88)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '24px',
+            padding: '2.5rem 2rem',
+            textAlign: 'center',
+            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(239, 68, 68, 0.12)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
+        >
+          {/* Logo badge */}
           <div
             style={{
-              position: 'fixed',
-              top: '75px',
-              right: '20px',
-              zIndex: 9999,
-              background: 'rgba(15, 23, 42, 0.94)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(239, 68, 68, 0.45)',
-              color: '#ffffff',
-              padding: '0.85rem 1.25rem',
-              borderRadius: '14px',
-              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(239, 68, 68, 0.25)',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.85rem',
-              maxWidth: '380px',
-              animation: 'fadeIn 0.25s ease-out',
+              gap: '0.65rem',
+              padding: '0.45rem 1rem',
+              borderRadius: '999px',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: '1.75rem',
             }}
           >
-            <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              background: 'rgba(239, 68, 68, 0.18)',
+            <div
+              style={{
+                width: '22px',
+                height: '22px',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                background: '#090a0d',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <img src="/Hexa.png" alt="HexaPay" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <span style={{ fontWeight: 800, fontSize: '0.92rem', letterSpacing: '-0.01em' }}>
+              Hexa<span style={{ color: '#ef4444' }}>Pay</span>
+            </span>
+          </div>
+
+          {/* Animated Smartphone icon */}
+          <div
+            style={{
+              width: '84px',
+              height: '84px',
+              borderRadius: '24px',
+              background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(239, 68, 68, 0.04) 100%)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <Lock size={18} color="#f87171" />
-            </div>
-            <div>
-              <div style={{ color: '#fca5a5', fontSize: '0.88rem', fontWeight: '700', letterSpacing: '-0.01em' }}>
-                This is only for payment gateway
-              </div>
-              <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '2px', fontWeight: '500' }}>
-                Payment simulator is exclusively available on mobile view.
+              margin: '0 auto 1.5rem',
+              boxShadow: '0 12px 32px rgba(239, 68, 68, 0.22)',
+            }}
+          >
+            <Smartphone size={42} color="#f87171" strokeWidth={2} />
+          </div>
+
+          {/* Main Heading */}
+          <h1
+            style={{
+              fontSize: '1.45rem',
+              fontWeight: '900',
+              letterSpacing: '-0.02em',
+              margin: '0 0 0.75rem 0',
+              color: '#ffffff',
+            }}
+          >
+            Only Made For Mobile Device
+          </h1>
+
+          {/* Small strongly vibrating lock */}
+          <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '42px',
+                height: '42px',
+                borderRadius: '12px',
+                background: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                boxShadow: '0 0 22px rgba(239, 68, 68, 0.28), inset 0 0 8px rgba(239, 68, 68, 0.15)',
+              }}
+            >
+              <div className="lock-vibrate-strong">
+                <Lock size={19} color="#f87171" strokeWidth={2.4} />
               </div>
             </div>
           </div>
-        )}
 
-        {/* Full-screen Hero Video */}
-        <main
-          style={{
-            flex: 1,
-            position: 'relative',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {/* Background video */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-              zIndex: 0,
-              pointerEvents: 'none',
-            }}
-          >
-            <source src="/hero.mp4" type="video/mp4" />
-          </video>
-
-          {/* Dark overlay so the UI on top stays readable */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(to bottom, rgba(5,7,12,0.45) 0%, rgba(5,7,12,0.25) 50%, rgba(5,7,12,0.65) 100%)',
-              zIndex: 1,
-            }}
-          />
-        </main>
+        </div>
       </div>
     );
+  }
+
+  if (currentView === 'feedbacks') {
+    return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
   }
 
   if (loading) {
@@ -579,16 +574,10 @@ const AppContent = () => {
         <Navbar
           onOpenProfile={() => {}}
           onOpenAuth={() => {}}
-          onOpenFeedback={() => setIsLandingFeedbackOpen(true)}
-          onCloseToButton={() => setIsAppOpen(false)}
         />
         <main className="main-content auth-main-content" style={{ width: '100%' }}>
           <AuthScreen />
         </main>
-        <FeedbackModal
-          isOpen={isLandingFeedbackOpen}
-          onClose={() => setIsLandingFeedbackOpen(false)}
-        />
       </div>
     );
   }
@@ -598,6 +587,7 @@ const AppContent = () => {
 
 function App() {
   useEffect(() => {
+    document.title = 'HexaPay';
     const cleanupSound = initGlobalTapSound();
     const cleanupSecurity = initSecurityProtections();
     return () => {

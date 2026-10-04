@@ -1,7 +1,7 @@
 {
-  "name": "IDC 3.0",
-  "short_name": "IDC 3.0",
-  "description": "IDC 3.0 Virtual Payment Gateway & Simulator",
+  "name": "HexaPay",
+  "short_name": "HexaPay",
+  "description": "HexaPay - Instant Digital Payments",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,19 +10,19 @@
   "theme_color": "#090a0d",
   "icons": [
     {
-      "src": "/Hexa.png",
+      "src": "/pwa-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/Hexa.png",
+      "src": "/pwa-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/Hexa.png",
+      "src": "/pwa-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
