@@ -870,12 +870,20 @@ button:disabled {
     display: none !important;
   }
 
-  /* Zero side gaps on mobile: edge to edge and minimum bottom gap */
+  /* Lock auth page to viewport — no page-level scrolling */
+  .app-container:has(.auth-main-content) {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* Zero side gaps on mobile */
   .auth-main-content {
-    padding: 0.5rem 0.5rem 0.75rem 0.5rem !important;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem !important;
     display: flex !important;
     flex-direction: column !important;
     flex: 1 !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
   }
 
   .auth-grid {
@@ -884,15 +892,45 @@ button:disabled {
     flex: 1 !important;
     gap: 0 !important;
     width: 100% !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
+  }
+
+  .auth-wrapper {
+    overflow: hidden !important;
+    flex: 1 !important;
+    min-height: 0 !important;
   }
 
   .auth-form-card {
     width: 100% !important;
     max-width: 100% !important;
-    padding: 1.5rem 1.15rem !important;
+    padding: 1.1rem 1.15rem 1rem 1.15rem !important;
     border-radius: 16px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    overflow: visible !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Tighten form header spacing on mobile */
+  .auth-form-card > div:first-child {
+    margin-bottom: 0.85rem !important;
+  }
+
+  /* Tighten form gap on mobile */
+  .auth-form-card form {
+    gap: 0.75rem !important;
+  }
+
+  /* Feedbacks button: full width on mobile */
+  .auth-grid .galaxy-button {
+    width: 100% !important;
+  }
+
+  .auth-grid .galaxy-button button,
+  .auth-grid .galaxy-button a {
+    width: 100% !important;
   }
 }
 

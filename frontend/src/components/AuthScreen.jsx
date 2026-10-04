@@ -345,13 +345,14 @@ const AuthScreen = ({ onOpenFeedbacks }) => {
 
         {/* Feedbacks button at bottom of mobile auth screen */}
         {onOpenFeedbacks && (
-          <div style={{ marginTop: 'auto', paddingTop: '1.25rem', paddingBottom: '0.25rem', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ marginTop: '0.75rem', paddingBottom: '0', display: 'flex', justifyContent: 'center' }}>
             <GalaxyButton
               shape="pill"
               variant="subtle-green"
               onClick={onOpenFeedbacks}
               title="View Judges Feedbacks"
               icon={<MessageSquareText size={17} strokeWidth={2.4} color="#86efac" />}
+              style={{ width: '100%' }}
             >
               Feedbacks
             </GalaxyButton>
