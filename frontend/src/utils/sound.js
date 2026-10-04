@@ -79,18 +79,6 @@ function synthesizeSuccessChime() {
 
 export const playFeedbackNotificationSound = () => {
   if (typeof window === 'undefined') return;
-
-  // Try playing soft.mp3
-  try {
-    const audio = new Audio('/soft.mp3');
-    audio.volume = 0.95;
-    const p = audio.play();
-    if (p !== undefined) {
-      p.catch(() => {});
-    }
-  } catch (e) {}
-
-  // Synthesize pleasant, crisp alert chime
   synthesizeNotificationChime();
 };
 

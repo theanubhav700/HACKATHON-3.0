@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { initGlobalTapSound } from './utils/sound';
 import { initSecurityProtections } from './utils/security';
 import Navbar from './components/Navbar';
 import BalanceCard from './components/BalanceCard';
@@ -21,6 +20,7 @@ import BottomNav from './components/BottomNav';
 import TopIncomingNotification from './components/TopIncomingNotification';
 import FeedbackModal from './components/FeedbackModal';
 import FeedbacksPage from './components/FeedbacksPage';
+import GalaxyButton from './components/GalaxyButton';
 import { 
   RotateCw, 
   Sparkles, 
@@ -33,7 +33,8 @@ import {
   TrendingUp,
   RefreshCw,
   CheckCircle2,
-  Smartphone
+  Smartphone,
+  MessageSquareText
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -388,6 +389,10 @@ const AppContent = () => {
   }, []);
 
   // Unconditional hook execution complete - now safe to return views
+  if (currentView === 'feedbacks') {
+    return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
+  }
+
   // Desktop & Laptop Screen: Show "Only Made For Mobile Device" message
   if (!isMobile) {
     return (
@@ -519,14 +524,9 @@ const AppContent = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     );
-  }
-
-  if (currentView === 'feedbacks') {
-    return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
   }
 
   if (loading) {
@@ -576,7 +576,7 @@ const AppContent = () => {
           onOpenAuth={() => {}}
         />
         <main className="main-content auth-main-content" style={{ width: '100%' }}>
-          <AuthScreen />
+          <AuthScreen onOpenFeedbacks={() => navigateTo('feedbacks')} />
         </main>
       </div>
     );
@@ -588,10 +588,8 @@ const AppContent = () => {
 function App() {
   useEffect(() => {
     document.title = 'HexaPay';
-    const cleanupSound = initGlobalTapSound();
     const cleanupSecurity = initSecurityProtections();
     return () => {
-      cleanupSound();
       cleanupSecurity();
     };
   }, []);
