@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import SimpleCaptcha from './SimpleCaptcha';
-import GalaxyButton from './GalaxyButton';
 import { 
   Sparkles, 
   Lock, 
@@ -15,11 +14,10 @@ import {
   EyeOff,
   Zap,
   CheckCircle2,
-  Shield,
-  MessageSquareText
+  Shield
 } from 'lucide-react';
 
-const AuthScreen = ({ onOpenFeedbacks }) => {
+const AuthScreen = () => {
   const { login } = useAuth();
 
   // Login form state
@@ -342,22 +340,6 @@ const AuthScreen = ({ onOpenFeedbacks }) => {
           </form>
 
         </div>
-
-        {/* Feedbacks button at bottom of mobile auth screen */}
-        {onOpenFeedbacks && (
-          <div style={{ marginTop: '0.75rem', paddingBottom: '0', display: 'flex', justifyContent: 'center' }}>
-            <GalaxyButton
-              shape="pill"
-              variant="subtle-green"
-              onClick={onOpenFeedbacks}
-              title="View Judges Feedbacks"
-              icon={<MessageSquareText size={17} strokeWidth={2.4} color="#86efac" />}
-              style={{ width: '100%' }}
-            >
-              Feedbacks
-            </GalaxyButton>
-          </div>
-        )}
 
       </div>
     </div>

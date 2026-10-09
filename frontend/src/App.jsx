@@ -21,6 +21,7 @@ import TopIncomingNotification from './components/TopIncomingNotification';
 import FeedbackModal from './components/FeedbackModal';
 import FeedbacksPage from './components/FeedbacksPage';
 import GalaxyButton from './components/GalaxyButton';
+import { api } from './services/api';
 import { 
   RotateCw, 
   Sparkles, 
@@ -348,6 +349,73 @@ const AppContent = () => {
     }
   };
 
+  const [hasNewFeedback, setHasNewFeedback] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('hexa_has_unread_feedback') === 'true';
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    let pollTimer = null;
+
+    const checkFeedbacks = async () => {
+      try {
+        const data = await api.getFeedbacks();
+        if (!isMounted) return;
+        const list = data?.feedbacks || [];
+        const currentCount = list.length;
+        const latestFb = list[0];
+        const latestId = latestFb?._id;
+
+        const storedSeenId = localStorage.getItem('hexa_seen_feedback_id');
+        const storedSeenCount = localStorage.getItem('hexa_seen_feedback_count');
+
+        if (storedSeenId === null && storedSeenCount === null) {
+          if (latestId) localStorage.setItem('hexa_seen_feedback_id', latestId);
+          localStorage.setItem('hexa_seen_feedback_count', String(currentCount));
+        } else {
+          const hasNewId = Boolean(latestId && storedSeenId && latestId !== storedSeenId);
+          const hasCountIncreased = storedSeenCount !== null && currentCount > parseInt(storedSeenCount, 10);
+          if (hasNewId || hasCountIncreased) {
+            setHasNewFeedback(true);
+            localStorage.setItem('hexa_has_unread_feedback', 'true');
+          }
+        }
+      } catch (err) {
+        // Silently retry
+      }
+    };
+
+    checkFeedbacks();
+    pollTimer = setInterval(checkFeedbacks, 4000);
+
+    const handleFeedbackRead = () => {
+      setHasNewFeedback(false);
+      localStorage.removeItem('hexa_has_unread_feedback');
+    };
+    const handleStorage = (e) => {
+      if (e.key === 'hexa_has_unread_feedback') {
+        setHasNewFeedback(e.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('feedback_read', handleFeedbackRead);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      isMounted = false;
+      if (pollTimer) clearInterval(pollTimer);
+      window.removeEventListener('feedback_read', handleFeedbackRead);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
+  const handleDesktopFeedbackClick = () => {
+    setHasNewFeedback(false);
+    localStorage.removeItem('hexa_has_unread_feedback');
+    navigateTo('feedbacks');
+  };
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -409,68 +477,111 @@ const AppContent = () => {
           position: 'relative',
         }}
       >
-        {/* ── Top nav bar ── */}
+        {/* ── Edge-to-Edge Background Video (Crystal Clear, Full Quality) ── */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        >
+          <video
+            ref={(el) => {
+              if (el) {
+                el.muted = true;
+                el.play().catch(() => {});
+              }
+            }}
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              width: '100%',
+              height: '100%',
+              minWidth: '100%',
+              minHeight: '100%',
+              objectFit: 'cover',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <source src="/bg.mp4" type="video/mp4" />
+          </video>
+        </div>
+
+        {/* ── Top nav bar (Compact Height) ── */}
         <nav
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
+            height: '52px',
             zIndex: 50,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '1.1rem 2.5rem',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            background: 'rgba(6, 8, 13, 0.85)',
+            padding: '0 2rem',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(6, 8, 13, 0.45)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
           }}
         >
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
             <div
               style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '8px',
+                width: '26px',
+                height: '26px',
+                borderRadius: '7px',
                 overflow: 'hidden',
                 background: '#090a0d',
                 border: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               <img src="/Hexa.png" alt="HexaPay" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <span style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.01em' }}>
+            <span style={{ fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em' }}>
               Hexa<span style={{ color: '#ef4444' }}>Pay</span>
             </span>
           </div>
 
-          {/* Badge */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.35rem 0.9rem',
-              borderRadius: '999px',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-            }}
-          >
-            <div
-              style={{
-                width: '7px',
-                height: '7px',
-                borderRadius: '50%',
-                background: '#ef4444',
-                boxShadow: '0 0 8px #ef4444',
-                animation: 'pulse 1.5s ease-in-out infinite',
-              }}
-            />
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f87171', letterSpacing: '0.06em' }}>
-              LIVE
-            </span>
+          {/* Feedbacks Button (Compact) */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <GalaxyButton
+              shape="pill"
+              variant="subtle-green"
+              className={hasNewFeedback ? 'review-inner-glow' : ''}
+              onClick={handleDesktopFeedbackClick}
+              title={hasNewFeedback ? "New review received! Click to view" : "View Judges Feedbacks"}
+              style={{ transform: 'scale(0.88)', transformOrigin: 'right center' }}
+              icon={<MessageSquareText size={15} strokeWidth={2.4} color={hasNewFeedback ? '#fca5a5' : '#86efac'} />}
+            >
+              Feedbacks
+              {hasNewFeedback && (
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#ef4444',
+                    boxShadow: '0 0 8px #ef4444',
+                    marginLeft: '5px',
+                    verticalAlign: 'middle',
+                  }}
+                />
+              )}
+            </GalaxyButton>
           </div>
         </nav>
 
@@ -482,8 +593,9 @@ const AppContent = () => {
             flexDirection: 'column',
             justifyContent: 'center',
             padding: '0 3.5rem',
-            paddingTop: '80px',
+            paddingTop: '64px',
             position: 'relative',
+            zIndex: 10,
           }}
         >
           {/* Ambient red glow */}
@@ -495,7 +607,7 @@ const AppContent = () => {
               transform: 'translate(-50%, -50%)',
               width: '900px',
               height: '400px',
-              background: 'radial-gradient(ellipse, rgba(239,68,68,0.07) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse, rgba(239,68,68,0.12) 0%, transparent 70%)',
               pointerEvents: 'none',
             }}
           />
@@ -508,8 +620,9 @@ const AppContent = () => {
               gap: '0.55rem',
               padding: '0.4rem 1rem',
               borderRadius: '999px',
-              background: 'rgba(239, 68, 68, 0.08)',
-              border: '1px solid rgba(239, 68, 68, 0.25)',
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              backdropFilter: 'blur(8px)',
               marginBottom: '2.2rem',
               alignSelf: 'flex-start',
             }}
@@ -531,6 +644,7 @@ const AppContent = () => {
                 margin: 0,
                 color: '#ffffff',
                 whiteSpace: 'nowrap',
+                textShadow: '0 4px 30px rgba(0,0,0,0.6)',
               }}
             >
               Hackathon
@@ -544,9 +658,10 @@ const AppContent = () => {
                 lineHeight: 0.88,
                 letterSpacing: '-0.04em',
                 margin: 0,
-                WebkitTextStroke: '2px rgba(255,255,255,0.18)',
+                WebkitTextStroke: '2px rgba(255,255,255,0.28)',
                 color: 'transparent',
                 whiteSpace: 'nowrap',
+                textShadow: '0 4px 30px rgba(0,0,0,0.4)',
               }}
             >
               IDC&nbsp;3.0
@@ -566,17 +681,18 @@ const AppContent = () => {
             <p
               style={{
                 fontSize: '1.05rem',
-                color: 'rgba(255,255,255,0.42)',
+                color: 'rgba(255,255,255,0.6)',
                 fontWeight: 400,
                 lineHeight: 1.65,
                 maxWidth: '420px',
                 margin: 0,
+                textShadow: '0 2px 10px rgba(0,0,0,0.5)',
               }}
             >
               Built at IDC 3.0 — a hackathon that pushed us to build
               <br />a real-time payment gateway from scratch.
               <br />
-              <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '0.88rem' }}>
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.88rem' }}>
                 Open on mobile for the full experience.
               </span>
             </p>
@@ -596,6 +712,7 @@ const AppContent = () => {
                       letterSpacing: '-0.04em',
                       lineHeight: 1,
                       color: '#ffffff',
+                      textShadow: '0 4px 20px rgba(0,0,0,0.5)',
                     }}
                   >
                     {value}
@@ -604,7 +721,7 @@ const AppContent = () => {
                     style={{
                       fontSize: '0.72rem',
                       fontWeight: 600,
-                      color: 'rgba(255,255,255,0.3)',
+                      color: 'rgba(255,255,255,0.45)',
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',
                       marginTop: '0.2rem',
@@ -621,19 +738,24 @@ const AppContent = () => {
         {/* ── Bottom footer bar ── */}
         <footer
           style={{
+            position: 'relative',
+            zIndex: 10,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '1rem 2.5rem',
             borderTop: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(6, 8, 13, 0.5)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
           }}
         >
-          <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.2)', fontWeight: 500 }}>
+          <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
             HexaPay
           </span>
           <div style={{ display: 'flex', gap: '2rem' }}>
             {['Mobile Only', 'IDC 3.0', 'HexaPay'].map((t) => (
-              <span key={t} style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.2)', fontWeight: 500 }}>
+              <span key={t} style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
                 {t}
               </span>
             ))}
@@ -660,8 +782,8 @@ const AppContent = () => {
         alignItems: 'center',
         justifyContent: 'center',
         gap: '1rem',
-        background: 'var(--bg-primary)',
-        color: 'var(--text-main)',
+        background: '#06080d',
+        color: '#ffffff',
       }}>
         <div style={{
           width: '64px',
@@ -682,8 +804,8 @@ const AppContent = () => {
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
         </div>
-        <RotateCw size={24} className="animate-spin" color="var(--primary)" />
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)', fontWeight: '600' }}>
+        <RotateCw size={24} className="animate-spin" color="#ef4444" />
+        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', fontWeight: '600' }}>
           Loading IDC 3.0...
         </p>
       </div>
@@ -698,7 +820,7 @@ const AppContent = () => {
           onOpenAuth={() => {}}
         />
         <main className="main-content auth-main-content" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <AuthScreen onOpenFeedbacks={() => navigateTo('feedbacks')} />
+          <AuthScreen />
         </main>
       </div>
     );
