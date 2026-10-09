@@ -355,7 +355,6 @@ const AppContent = () => {
     return localStorage.getItem('hexa_has_unread_feedback') === 'true';
   });
 
-  const [incomingFeedback, setIncomingFeedback] = useState(null);
   const latestFeedbackIdRef = useRef(null);
   const isBaselineInitialized = useRef(false);
 
@@ -404,18 +403,7 @@ const AppContent = () => {
           // 1. Play Truecaller notification ringtone!
           playFeedbackNotificationSound();
 
-          // 2. Trigger floating notification banner at top of screen!
-          setIncomingFeedback({
-            type: 'feedback',
-            id: latestFb._id || `fb_${Date.now()}`,
-            judgeName: latestFb.judgeName || 'Judge',
-            rating: latestFb.rating || 5,
-            review: latestFb.review || 'Great work!',
-            category: latestFb.category || 'IDC Hackathon 3.0 // HEXA',
-            time: 'Just now',
-          });
-
-          // 3. Dispatch global event for FeedbacksPage auto-refresh
+          // 2. Dispatch global event for FeedbacksPage auto-refresh
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('new_feedback_received', { detail: latestFb }));
           }
@@ -869,19 +857,7 @@ const AppContent = () => {
     return <Dashboard />;
   };
 
-  return (
-    <>
-      <TopIncomingNotification
-        notification={incomingFeedback}
-        onClose={() => setIncomingFeedback(null)}
-        onViewFeedbacks={() => {
-          setIncomingFeedback(null);
-          navigateTo('feedbacks');
-        }}
-      />
-      {renderCurrentPageView()}
-    </>
-  );
+  return renderCurrentPageView();
 };
 
 function App() {
