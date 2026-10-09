@@ -149,7 +149,7 @@ function synthesizeNotificationChime() {
   } catch (e) {}
 }
 
-// Browser Autoplay Policy: Unlock audio upon first user gesture
+// Browser Autoplay Policy: Unlock audio context upon first user gesture
 if (typeof window !== 'undefined') {
   const unlockEvents = ['click', 'touchstart', 'keydown', 'pointerdown'];
   const handleUnlockAudio = () => {
@@ -158,13 +158,6 @@ if (typeof window !== 'undefined') {
       if (ctx && ctx.state === 'suspended') {
         ctx.resume().catch(() => {});
       }
-      // Pre-warm audio instance
-      const probeAudio = new Audio('/true_caller.mp3');
-      probeAudio.volume = 0.001;
-      probeAudio.play().then(() => {
-        probeAudio.pause();
-        probeAudio.currentTime = 0;
-      }).catch(() => {});
     } catch (e) {}
     unlockEvents.forEach((evt) => window.removeEventListener(evt, handleUnlockAudio));
   };

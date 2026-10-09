@@ -356,7 +356,12 @@ const AppContent = () => {
   });
 
   const latestFeedbackIdRef = useRef(null);
-  const isBaselineInitialized = useRef(false);
+  const previousFeedbackCountRef = useRef(null);
+  const currentViewRef = useRef(currentView);
+
+  useEffect(() => {
+    currentViewRef.current = currentView;
+  }, [currentView]);
 
   useEffect(() => {
     let isMounted = true;
@@ -371,39 +376,38 @@ const AppContent = () => {
         const latestFb = list[0];
         const latestId = latestFb?._id;
 
-        const storedSeenId = localStorage.getItem('hexa_seen_feedback_id');
-        const storedSeenCount = localStorage.getItem('hexa_seen_feedback_count');
-
-        if (!isBaselineInitialized.current && storedSeenId === null && storedSeenCount === null) {
-          if (latestId) localStorage.setItem('hexa_seen_feedback_id', latestId);
-          localStorage.setItem('hexa_seen_feedback_count', String(currentCount));
+        // Establish silent baseline on first check after mount (never play sound on initial load/view switch)
+        if (previousFeedbackCountRef.current === null) {
+          previousFeedbackCountRef.current = currentCount;
           latestFeedbackIdRef.current = latestId || null;
-          isBaselineInitialized.current = true;
           return;
         }
 
-        isBaselineInitialized.current = true;
-
-        const lastKnownId = storedSeenId || latestFeedbackIdRef.current;
-        const lastKnownCount = storedSeenCount !== null ? parseInt(storedSeenCount, 10) : 0;
+        const prevCount = previousFeedbackCountRef.current;
+        const prevId = latestFeedbackIdRef.current;
 
         const isNewReview = Boolean(
-          (latestId && lastKnownId && latestId !== lastKnownId) ||
-          (currentCount > lastKnownCount)
+          (currentCount > prevCount) ||
+          (latestId && prevId && latestId !== prevId)
         );
 
+        // Update baseline to current remote state
+        previousFeedbackCountRef.current = currentCount;
+        latestFeedbackIdRef.current = latestId || null;
+
         if (isNewReview && latestFb) {
-          console.log('⭐ New Judge Review received:', latestFb.judgeName, latestFb.rating);
-          latestFeedbackIdRef.current = latestId;
+          console.log('⭐ Live Judge Review received:', latestFb.judgeName, latestFb.rating);
           localStorage.setItem('hexa_seen_feedback_id', latestId);
           localStorage.setItem('hexa_seen_feedback_count', String(currentCount));
           localStorage.setItem('hexa_has_unread_feedback', 'true');
           setHasNewFeedback(true);
 
-          // 1. Play Truecaller notification ringtone!
-          playFeedbackNotificationSound();
+          // ONLY play ringtone if user is outside the feedbacks page
+          if (currentViewRef.current !== 'feedbacks') {
+            playFeedbackNotificationSound();
+          }
 
-          // 2. Dispatch global event for FeedbacksPage auto-refresh
+          // Dispatch global event for FeedbacksPage auto-refresh
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('new_feedback_received', { detail: latestFb }));
           }
