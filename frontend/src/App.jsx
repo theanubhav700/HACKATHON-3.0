@@ -393,7 +393,7 @@ const AppContent = () => {
     return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
   }
 
-  // Desktop & Laptop Screen: Show "Only Made For Mobile Device" message
+  // Desktop & Laptop Screen: Show Hackathon IDC 3.0 landing page
   if (!isMobile) {
     return (
       <div
@@ -402,129 +402,251 @@ const AppContent = () => {
           width: '100vw',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'radial-gradient(ellipse at 50% 35%, rgba(239, 68, 68, 0.08) 0%, #06080d 75%)',
+          background: '#06080d',
           color: '#ffffff',
-          padding: '1.5rem',
-          boxSizing: 'border-box',
-          position: 'relative',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           overflow: 'hidden',
-          fontFamily: 'var(--font-heading, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
+          position: 'relative',
         }}
       >
-        {/* Subtle grid background */}
-        <div
+        {/* ── Top nav bar ── */}
+        <nav
           style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Central Card */}
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 1,
-            maxWidth: '460px',
-            width: '100%',
-            background: 'rgba(15, 18, 26, 0.88)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '24px',
-            padding: '2.5rem 2rem',
-            textAlign: 'center',
-            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(239, 68, 68, 0.12)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1.1rem 2.5rem',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(6, 8, 13, 0.85)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
           }}
         >
-          {/* Logo badge */}
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.65rem',
-              padding: '0.45rem 1rem',
-              borderRadius: '999px',
-              background: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              marginBottom: '1.75rem',
-            }}
-          >
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <div
               style={{
-                width: '22px',
-                height: '22px',
-                borderRadius: '6px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
                 overflow: 'hidden',
                 background: '#090a0d',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                border: '1px solid rgba(255,255,255,0.1)',
               }}
             >
               <img src="/Hexa.png" alt="HexaPay" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <span style={{ fontWeight: 800, fontSize: '0.92rem', letterSpacing: '-0.01em' }}>
+            <span style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.01em' }}>
               Hexa<span style={{ color: '#ef4444' }}>Pay</span>
             </span>
           </div>
 
-          {/* Animated Smartphone icon */}
+          {/* Badge */}
           <div
             style={{
-              width: '84px',
-              height: '84px',
-              borderRadius: '24px',
-              background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(239, 68, 68, 0.04) 100%)',
-              border: '1px solid rgba(239, 68, 68, 0.35)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.5rem',
-              boxShadow: '0 12px 32px rgba(239, 68, 68, 0.22)',
+              gap: '0.5rem',
+              padding: '0.35rem 0.9rem',
+              borderRadius: '999px',
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
             }}
           >
-            <Smartphone size={42} color="#f87171" strokeWidth={2} />
-          </div>
-
-          {/* Main Heading */}
-          <h1
-            style={{
-              fontSize: '1.45rem',
-              fontWeight: '900',
-              letterSpacing: '-0.02em',
-              margin: '0 0 0.75rem 0',
-              color: '#ffffff',
-            }}
-          >
-            Only Made For Mobile Device
-          </h1>
-
-          {/* Small strongly vibrating lock */}
-          <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
             <div
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.35)',
-                boxShadow: '0 0 22px rgba(239, 68, 68, 0.28), inset 0 0 8px rgba(239, 68, 68, 0.15)',
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                background: '#ef4444',
+                boxShadow: '0 0 8px #ef4444',
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }}
+            />
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f87171', letterSpacing: '0.06em' }}>
+              LIVE
+            </span>
+          </div>
+        </nav>
+
+        {/* ── Hero section ── */}
+        <main
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            padding: '0 3.5rem',
+            paddingTop: '80px',
+            position: 'relative',
+          }}
+        >
+          {/* Ambient red glow */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '55%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '900px',
+              height: '400px',
+              background: 'radial-gradient(ellipse, rgba(239,68,68,0.07) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Event tag */}
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.55rem',
+              padding: '0.4rem 1rem',
+              borderRadius: '999px',
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              marginBottom: '2.2rem',
+              alignSelf: 'flex-start',
+            }}
+          >
+            <Smartphone size={13} color="#f87171" strokeWidth={2.5} />
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f87171', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Hackathon · IDC 3.0
+            </span>
+          </div>
+
+          {/* Giant headline — Antigravity style */}
+          <div style={{ overflow: 'hidden', marginBottom: '0.2rem' }}>
+            <h1
+              style={{
+                fontSize: 'clamp(5rem, 13vw, 13rem)',
+                fontWeight: 900,
+                lineHeight: 0.88,
+                letterSpacing: '-0.04em',
+                margin: 0,
+                color: '#ffffff',
+                whiteSpace: 'nowrap',
               }}
             >
-              <div className="lock-vibrate-strong">
-                <Lock size={19} color="#f87171" strokeWidth={2.4} />
-              </div>
+              Hackathon
+            </h1>
+          </div>
+          <div style={{ overflow: 'hidden', marginBottom: '2.5rem' }}>
+            <h1
+              style={{
+                fontSize: 'clamp(5rem, 13vw, 13rem)',
+                fontWeight: 900,
+                lineHeight: 0.88,
+                letterSpacing: '-0.04em',
+                margin: 0,
+                WebkitTextStroke: '2px rgba(255,255,255,0.18)',
+                color: 'transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              IDC&nbsp;3.0
+            </h1>
+          </div>
+
+          {/* Sub-row */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              gap: '2rem',
+            }}
+          >
+            {/* Description */}
+            <p
+              style={{
+                fontSize: '1.05rem',
+                color: 'rgba(255,255,255,0.42)',
+                fontWeight: 400,
+                lineHeight: 1.65,
+                maxWidth: '420px',
+                margin: 0,
+              }}
+            >
+              Built at IDC 3.0 — a hackathon that pushed us to build
+              <br />a real-time payment gateway from scratch.
+              <br />
+              <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '0.88rem' }}>
+                Open on mobile for the full experience.
+              </span>
+            </p>
+
+            {/* Stats row */}
+            <div style={{ display: 'flex', gap: '3rem', alignItems: 'center' }}>
+              {[
+                { value: '24', label: 'Hours' },
+                { value: '01', label: 'Team' },
+                { value: '∞', label: 'Caffeine' },
+              ].map(({ value, label }) => (
+                <div key={label} style={{ textAlign: 'right' }}>
+                  <div
+                    style={{
+                      fontSize: 'clamp(2rem, 4vw, 3.8rem)',
+                      fontWeight: 900,
+                      letterSpacing: '-0.04em',
+                      lineHeight: 1,
+                      color: '#ffffff',
+                    }}
+                  >
+                    {value}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      color: 'rgba(255,255,255,0.3)',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      marginTop: '0.2rem',
+                    }}
+                  >
+                    {label}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        </main>
+
+        {/* ── Bottom footer bar ── */}
+        <footer
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1rem 2.5rem',
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.2)', fontWeight: 500 }}>
+            HexaPay
+          </span>
+          <div style={{ display: 'flex', gap: '2rem' }}>
+            {['Mobile Only', 'IDC 3.0', 'HexaPay'].map((t) => (
+              <span key={t} style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.2)', fontWeight: 500 }}>
+                {t}
+              </span>
+            ))}
+          </div>
+        </footer>
+
+        {/* Pulse animation keyframe injected via style tag */}
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+          }
+        `}</style>
       </div>
     );
   }
