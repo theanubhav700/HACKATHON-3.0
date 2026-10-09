@@ -33,7 +33,7 @@ const formatReviewDate = (dateInput) => {
 // Public submission endpoint for Judges Feedback (accepts requests from any external site)
 router.post('/', async (req, res) => {
   try {
-    const { judgeName, rating, review, category } = req.body;
+    const { judgeName, judgeEmail, rating, review, category } = req.body;
 
     if (!judgeName || !judgeName.trim()) {
       return res.status(400).json({
@@ -60,6 +60,7 @@ router.post('/', async (req, res) => {
     const now = new Date();
     const newFeedback = new Feedback({
       judgeName: judgeName.trim(),
+      judgeEmail: judgeEmail ? judgeEmail.trim() : '',
       rating: numRating,
       review: review.trim(),
       category: category ? category.trim() : 'IDC Hackathon 3.0',
@@ -68,7 +69,7 @@ router.post('/', async (req, res) => {
 
     await newFeedback.save();
 
-    console.log(`⭐ New Judge Feedback received: ${newFeedback.judgeName} (${newFeedback.rating}★)`);
+    console.log(`⭐ New Judge Feedback received: ${newFeedback.judgeName} <${newFeedback.judgeEmail || 'no-email'}> (${newFeedback.rating}★)`);
 
     return res.status(201).json({
       success: true,

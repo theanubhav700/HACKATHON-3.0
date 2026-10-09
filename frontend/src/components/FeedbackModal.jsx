@@ -10,7 +10,8 @@ import {
   ExternalLink,
   ShieldCheck,
   CheckCircle2,
-  Clock
+  Clock,
+  Mail
 } from 'lucide-react';
 
 const formatFeedbackDate = (fb) => {
@@ -397,6 +398,25 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                           Judge
                         </span>
                       </div>
+                      {fb.judgeEmail && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '2px' }}>
+                          <Mail size={11} color="#6366f1" style={{ flexShrink: 0 }} />
+                          <a
+                            href={`mailto:${fb.judgeEmail}`}
+                            style={{
+                              fontSize: '0.72rem',
+                              color: 'var(--text-dim)',
+                              textDecoration: 'none',
+                              wordBreak: 'break-all',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#6366f1')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-dim)')}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {fb.judgeEmail}
+                          </a>
+                        </div>
+                      )}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '2px' }}>
                         <Clock size={11} color="var(--text-dim)" />
                         <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>

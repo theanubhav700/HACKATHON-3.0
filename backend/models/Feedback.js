@@ -8,6 +8,11 @@ const feedbackSchema = new mongoose.Schema(
       trim: true,
       default: 'Anonymous Judge',
     },
+    judgeEmail: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     rating: {
       type: Number,
       required: [true, 'Rating is required'],

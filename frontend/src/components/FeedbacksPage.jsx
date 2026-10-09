@@ -16,7 +16,8 @@ import {
   ArrowLeft,
   TrendingUp,
   Sparkles,
-  Zap
+  Zap,
+  Mail
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 const formatFeedbackDate = (fb) => {
@@ -193,9 +194,11 @@ const FeedbacksPage = ({ onBack }) => {
 
   // Filter feedbacks
   const filteredFeedbacks = feedbacks.filter((fb) => {
+    const query = searchQuery.toLowerCase();
     const matchesSearch =
-      (fb.judgeName && fb.judgeName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (fb.review && fb.review.toLowerCase().includes(searchQuery.toLowerCase()));
+      (fb.judgeName && fb.judgeName.toLowerCase().includes(query)) ||
+      (fb.judgeEmail && fb.judgeEmail.toLowerCase().includes(query)) ||
+      (fb.review && fb.review.toLowerCase().includes(query));
 
     const matchesStar =
       selectedStar === 'ALL' || Number(fb.rating) === Number(selectedStar);
@@ -476,7 +479,7 @@ const FeedbacksPage = ({ onBack }) => {
             />
             <input
               type="text"
-              placeholder="Search by judge name or keyword..."
+              placeholder="Search by judge name, email, or keyword..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -570,6 +573,26 @@ const FeedbacksPage = ({ onBack }) => {
                           Judge
                         </span>
                       </div>
+                      {fb.judgeEmail && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '3px' }}>
+                          <Mail size={12} color="#6366f1" style={{ flexShrink: 0 }} />
+                          <a
+                            href={`mailto:${fb.judgeEmail}`}
+                            style={{
+                              fontSize: '0.76rem',
+                              color: 'var(--text-dim)',
+                              textDecoration: 'none',
+                              wordBreak: 'break-all',
+                              transition: 'color 0.15s ease',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#6366f1')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-dim)')}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {fb.judgeEmail}
+                          </a>
+                        </div>
+                      )}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '2px' }}>
                         <Clock size={12} color="var(--text-dim)" style={{ flexShrink: 0 }} />
                         <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
