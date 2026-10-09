@@ -77,7 +77,41 @@ function synthesizeSuccessChime() {
   } catch (e) {}
 }
 
+let feedbackAudioElement = null;
+let feedbackAudioBuffer = null;
+let isBufferLoading = false;
+
+// Preload and decode true_caller.mp3 into Web Audio buffer for restriction-free playback
+export const preloadFeedbackSound = async () => {
+  if (typeof window === 'undefined') return;
+  try {
+    if (!feedbackAudioElement) {
+      feedbackAudioElement = new Audio('/true_caller.mp3');
+      feedbackAudioElement.preload = 'auto';
+    }
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    if (!feedbackAudioBuffer && !isBufferLoading) {
+      isBufferLoading = true;
+      const res = await fetch('/true_caller.mp3');
+      if (res.ok) {
+        const arrayBuf = await res.arrayBuffer();
+        feedbackAudioBuffer = await ctx.decodeAudioData(arrayBuf);
+        console.log('✅ true_caller.mp3 loaded into Web Audio buffer');
+      }
+      isBufferLoading = false;
+    }
+  } catch (err) {
+    isBufferLoading = false;
+    console.warn('Preload true_caller note:', err);
+  }
+};
+
 let lastPlayedFeedbackSoundTime = 0;
+let pendingSoundPlay = false;
 
 export const playFeedbackNotificationSound = () => {
   if (typeof window === 'undefined') return;
@@ -91,25 +125,68 @@ export const playFeedbackNotificationSound = () => {
 
   console.log('🎵 Playing Judge Feedback Ringtone: /true_caller.mp3');
 
+  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+    try { navigator.vibrate([200, 100, 200, 100, 300]); } catch (e) {}
+  }
+
+  let played = false;
+
+  // Attempt 1: Web Audio Buffer Source (most reliable in modern browsers)
   try {
-    const audio = new Audio('/true_caller.mp3');
-    audio.volume = 1.0;
-    const playPromise = audio.play();
+    const ctx = getAudioContext();
+    if (ctx) {
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      if (feedbackAudioBuffer) {
+        const source = ctx.createBufferSource();
+        source.buffer = feedbackAudioBuffer;
+        const gainNode = ctx.createGain();
+        gainNode.gain.setValueAtTime(1.0, ctx.currentTime);
+        source.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        source.start(0);
+        played = true;
+        console.log('🔊 true_caller.mp3 playing via Web Audio API');
+      }
+    }
+  } catch (e) {
+    console.warn('Web Audio buffer playback note:', e);
+  }
+
+  // Attempt 2: HTML5 Audio instance
+  try {
+    if (!feedbackAudioElement) {
+      feedbackAudioElement = new Audio('/true_caller.mp3');
+      feedbackAudioElement.preload = 'auto';
+    }
+    feedbackAudioElement.currentTime = 0;
+    feedbackAudioElement.volume = 1.0;
+    const playPromise = feedbackAudioElement.play();
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
-          if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            try { navigator.vibrate([200, 100, 200, 100, 300]); } catch (e) {}
-          }
+          played = true;
+          console.log('🔊 true_caller.mp3 playing via HTML5 Audio');
         })
         .catch((err) => {
-          console.warn('Audio play restricted by browser policy, falling back to chime:', err);
-          synthesizeNotificationChime();
+          console.warn('HTML5 Audio play restricted by browser policy:', err);
+          pendingSoundPlay = true;
+          if (!played) {
+            synthesizeNotificationChime();
+          }
         });
-      return;
     }
   } catch (e) {
-    synthesizeNotificationChime();
+    console.warn('HTML5 Audio error:', e);
+    if (!played) {
+      synthesizeNotificationChime();
+    }
+  }
+
+  // Ensure buffer is prepared for next time if not already loaded
+  if (!feedbackAudioBuffer) {
+    preloadFeedbackSound();
   }
 };
 
@@ -149,7 +226,7 @@ function synthesizeNotificationChime() {
   } catch (e) {}
 }
 
-// Browser Autoplay Policy: Unlock audio context upon first user gesture
+// Browser Autoplay Policy: Unlock audio context & preload true_caller upon any user gesture
 if (typeof window !== 'undefined') {
   const unlockEvents = ['click', 'touchstart', 'keydown', 'pointerdown'];
   const handleUnlockAudio = () => {
@@ -158,10 +235,14 @@ if (typeof window !== 'undefined') {
       if (ctx && ctx.state === 'suspended') {
         ctx.resume().catch(() => {});
       }
+      preloadFeedbackSound();
+      if (pendingSoundPlay) {
+        pendingSoundPlay = false;
+        playFeedbackNotificationSound();
+      }
     } catch (e) {}
-    unlockEvents.forEach((evt) => window.removeEventListener(evt, handleUnlockAudio));
   };
-  unlockEvents.forEach((evt) => window.addEventListener(evt, handleUnlockAudio, { passive: true, once: true }));
+  unlockEvents.forEach((evt) => window.addEventListener(evt, handleUnlockAudio, { passive: true }));
 }
 
 export const initGlobalTapSound = () => {

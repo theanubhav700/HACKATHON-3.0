@@ -402,10 +402,8 @@ const AppContent = () => {
           localStorage.setItem('hexa_has_unread_feedback', 'true');
           setHasNewFeedback(true);
 
-          // ONLY play ringtone if user is outside the feedbacks page
-          if (currentViewRef.current !== 'feedbacks') {
-            playFeedbackNotificationSound();
-          }
+          // Play true_caller notification ringtone
+          playFeedbackNotificationSound();
 
           // Dispatch global event for FeedbacksPage auto-refresh
           if (typeof window !== 'undefined') {
