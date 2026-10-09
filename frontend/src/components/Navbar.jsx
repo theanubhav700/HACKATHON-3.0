@@ -4,7 +4,6 @@ import { ArrowUpRight, LogOut, MessageSquareText } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import GalaxyButton from './GalaxyButton';
 import { api } from '../services/api';
-import { playFeedbackNotificationSound } from '../utils/sound';
 
 const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick, onOpenFeedback, onOpenFeedbacksPage, isLanding, desktopNotice }) => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -45,7 +44,7 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
           if (hasNewId || hasCountIncreased) {
             setHasNewFeedback(true);
             localStorage.setItem('hexa_has_unread_feedback', 'true');
-            playFeedbackNotificationSound();
+            // Sound is handled exclusively by App.jsx to prevent duplicate/overlapping playback
           }
         }
       } catch (err) {
@@ -67,14 +66,20 @@ const Navbar = ({ onOpenProfile, onOpenAuth, onCloseToButton, onTransactionClick
       }
     };
 
+    const handleNewFeedbackReceived = () => {
+      setHasNewFeedback(true);
+    };
+
     window.addEventListener('feedback_read', handleFeedbackRead);
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('new_feedback_received', handleNewFeedbackReceived);
 
     return () => {
       isMounted = false;
       if (pollTimer) clearInterval(pollTimer);
       window.removeEventListener('feedback_read', handleFeedbackRead);
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('new_feedback_received', handleNewFeedbackReceived);
     };
   }, []);
 

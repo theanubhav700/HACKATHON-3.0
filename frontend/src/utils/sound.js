@@ -80,6 +80,7 @@ function synthesizeSuccessChime() {
 let feedbackAudioElement = null;
 let feedbackAudioBuffer = null;
 let isBufferLoading = false;
+let activeBufferSource = null;
 
 // Preload and decode true_caller.mp3 into Web Audio buffer for restriction-free playback
 export const preloadFeedbackSound = async () => {
@@ -117,8 +118,8 @@ export const playFeedbackNotificationSound = () => {
   if (typeof window === 'undefined') return;
 
   const now = Date.now();
-  // Prevent duplicate trigger within 2 seconds
-  if (now - lastPlayedFeedbackSoundTime < 2000) {
+  // Prevent duplicate trigger within 3 seconds (mp3 duration is ~1.87s)
+  if (now - lastPlayedFeedbackSoundTime < 3000) {
     return;
   }
   lastPlayedFeedbackSoundTime = now;
@@ -129,9 +130,24 @@ export const playFeedbackNotificationSound = () => {
     try { navigator.vibrate([200, 100, 200, 100, 300]); } catch (e) {}
   }
 
+  // Stop any previously playing sound instances to guarantee no overlap
+  if (activeBufferSource) {
+    try {
+      activeBufferSource.stop();
+      activeBufferSource.disconnect();
+    } catch (e) {}
+    activeBufferSource = null;
+  }
+  if (feedbackAudioElement) {
+    try {
+      feedbackAudioElement.pause();
+      feedbackAudioElement.currentTime = 0;
+    } catch (e) {}
+  }
+
   let played = false;
 
-  // Attempt 1: Web Audio Buffer Source (most reliable in modern browsers)
+  // Attempt 1: Web Audio Buffer Source (most reliable & instant in modern browsers)
   try {
     const ctx = getAudioContext();
     if (ctx) {
@@ -145,8 +161,17 @@ export const playFeedbackNotificationSound = () => {
         gainNode.gain.setValueAtTime(1.0, ctx.currentTime);
         source.connect(gainNode);
         gainNode.connect(ctx.destination);
+        
+        activeBufferSource = source;
+        source.onended = () => {
+          if (activeBufferSource === source) {
+            activeBufferSource = null;
+          }
+        };
+
         source.start(0);
         played = true;
+        pendingSoundPlay = false;
         console.log('🔊 true_caller.mp3 playing via Web Audio API');
       }
     }
@@ -154,33 +179,36 @@ export const playFeedbackNotificationSound = () => {
     console.warn('Web Audio buffer playback note:', e);
   }
 
-  // Attempt 2: HTML5 Audio instance
-  try {
-    if (!feedbackAudioElement) {
-      feedbackAudioElement = new Audio('/true_caller.mp3');
-      feedbackAudioElement.preload = 'auto';
-    }
-    feedbackAudioElement.currentTime = 0;
-    feedbackAudioElement.volume = 1.0;
-    const playPromise = feedbackAudioElement.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          played = true;
-          console.log('🔊 true_caller.mp3 playing via HTML5 Audio');
-        })
-        .catch((err) => {
-          console.warn('HTML5 Audio play restricted by browser policy:', err);
-          pendingSoundPlay = true;
-          if (!played) {
-            synthesizeNotificationChime();
-          }
-        });
-    }
-  } catch (e) {
-    console.warn('HTML5 Audio error:', e);
-    if (!played) {
-      synthesizeNotificationChime();
+  // Attempt 2: HTML5 Audio instance (ONLY run as fallback if Web Audio didn't play)
+  if (!played) {
+    try {
+      if (!feedbackAudioElement) {
+        feedbackAudioElement = new Audio('/true_caller.mp3');
+        feedbackAudioElement.preload = 'auto';
+      }
+      feedbackAudioElement.currentTime = 0;
+      feedbackAudioElement.volume = 1.0;
+      const playPromise = feedbackAudioElement.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            played = true;
+            pendingSoundPlay = false;
+            console.log('🔊 true_caller.mp3 playing via HTML5 Audio');
+          })
+          .catch((err) => {
+            console.warn('HTML5 Audio play restricted by browser policy:', err);
+            pendingSoundPlay = true;
+            if (!played) {
+              synthesizeNotificationChime();
+            }
+          });
+      }
+    } catch (e) {
+      console.warn('HTML5 Audio error:', e);
+      if (!played) {
+        synthesizeNotificationChime();
+      }
     }
   }
 

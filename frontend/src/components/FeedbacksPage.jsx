@@ -20,7 +20,7 @@ import {
   Mail
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
-import { playFeedbackNotificationSound } from '../utils/sound';
+
 const formatFeedbackDate = (fb) => {
   if (!fb) return 'Recently';
   const rawDate = fb.createdAt || fb.date;
@@ -168,7 +168,6 @@ const FeedbacksPage = ({ onBack }) => {
 
     const handleIncomingFeedback = () => {
       loadFeedbacks(false);
-      playFeedbackNotificationSound();
     };
 
     window.addEventListener('new_feedback_received', handleIncomingFeedback);
