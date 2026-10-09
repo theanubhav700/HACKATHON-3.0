@@ -186,10 +186,25 @@ export const api = {
 
   // ─── Feedbacks ───
   getFeedbacks: async () => {
-    const res = await fetch(`${API_BASE}/feedback`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to fetch feedbacks');
-    return data;
+    try {
+      const res = await fetch(`${API_BASE}/feedback`);
+      if (res.ok) {
+        return await res.json();
+      }
+      throw new Error('Primary feedback fetch failed');
+    } catch (err) {
+      if (!API_BASE.includes('hackathon-3-0-awsf.onrender.com')) {
+        try {
+          const fallbackRes = await fetch('https://hackathon-3-0-awsf.onrender.com/api/feedback');
+          if (fallbackRes.ok) {
+            return await fallbackRes.json();
+          }
+        } catch (fallbackErr) {
+          // Fall through to throw original error
+        }
+      }
+      throw err;
+    }
   },
 
   submitFeedback: async (feedbackData) => {

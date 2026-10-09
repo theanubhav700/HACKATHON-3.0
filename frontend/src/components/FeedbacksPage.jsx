@@ -163,11 +163,22 @@ const FeedbacksPage = ({ onBack }) => {
   useEffect(() => {
     document.title = 'HexaPay - Judges Feedbacks';
     loadFeedbacks();
+
+    const handleIncomingFeedback = () => {
+      loadFeedbacks(false);
+    };
+
+    window.addEventListener('new_feedback_received', handleIncomingFeedback);
+
     // Auto-poll every 3 seconds for live sync
     const timer = setInterval(() => {
       loadFeedbacks(false);
     }, 3000);
-    return () => clearInterval(timer);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('new_feedback_received', handleIncomingFeedback);
+    };
   }, []);
 
   const handleDelete = async (id) => {

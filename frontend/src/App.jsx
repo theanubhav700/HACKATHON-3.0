@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { initSecurityProtections } from './utils/security';
@@ -21,6 +21,7 @@ import TopIncomingNotification from './components/TopIncomingNotification';
 import FeedbackModal from './components/FeedbackModal';
 import FeedbacksPage from './components/FeedbacksPage';
 import GalaxyButton from './components/GalaxyButton';
+import { playFeedbackNotificationSound } from './utils/sound';
 import { api } from './services/api';
 import { 
   RotateCw, 
@@ -354,6 +355,10 @@ const AppContent = () => {
     return localStorage.getItem('hexa_has_unread_feedback') === 'true';
   });
 
+  const [incomingFeedback, setIncomingFeedback] = useState(null);
+  const latestFeedbackIdRef = useRef(null);
+  const isBaselineInitialized = useRef(false);
+
   useEffect(() => {
     let isMounted = true;
     let pollTimer = null;
@@ -370,15 +375,49 @@ const AppContent = () => {
         const storedSeenId = localStorage.getItem('hexa_seen_feedback_id');
         const storedSeenCount = localStorage.getItem('hexa_seen_feedback_count');
 
-        if (storedSeenId === null && storedSeenCount === null) {
+        if (!isBaselineInitialized.current && storedSeenId === null && storedSeenCount === null) {
           if (latestId) localStorage.setItem('hexa_seen_feedback_id', latestId);
           localStorage.setItem('hexa_seen_feedback_count', String(currentCount));
-        } else {
-          const hasNewId = Boolean(latestId && storedSeenId && latestId !== storedSeenId);
-          const hasCountIncreased = storedSeenCount !== null && currentCount > parseInt(storedSeenCount, 10);
-          if (hasNewId || hasCountIncreased) {
-            setHasNewFeedback(true);
-            localStorage.setItem('hexa_has_unread_feedback', 'true');
+          latestFeedbackIdRef.current = latestId || null;
+          isBaselineInitialized.current = true;
+          return;
+        }
+
+        isBaselineInitialized.current = true;
+
+        const lastKnownId = storedSeenId || latestFeedbackIdRef.current;
+        const lastKnownCount = storedSeenCount !== null ? parseInt(storedSeenCount, 10) : 0;
+
+        const isNewReview = Boolean(
+          (latestId && lastKnownId && latestId !== lastKnownId) ||
+          (currentCount > lastKnownCount)
+        );
+
+        if (isNewReview && latestFb) {
+          console.log('⭐ New Judge Review received:', latestFb.judgeName, latestFb.rating);
+          latestFeedbackIdRef.current = latestId;
+          localStorage.setItem('hexa_seen_feedback_id', latestId);
+          localStorage.setItem('hexa_seen_feedback_count', String(currentCount));
+          localStorage.setItem('hexa_has_unread_feedback', 'true');
+          setHasNewFeedback(true);
+
+          // 1. Play Truecaller notification ringtone!
+          playFeedbackNotificationSound();
+
+          // 2. Trigger floating notification banner at top of screen!
+          setIncomingFeedback({
+            type: 'feedback',
+            id: latestFb._id || `fb_${Date.now()}`,
+            judgeName: latestFb.judgeName || 'Judge',
+            rating: latestFb.rating || 5,
+            review: latestFb.review || 'Great work!',
+            category: latestFb.category || 'IDC Hackathon 3.0 // HEXA',
+            time: 'Just now',
+          });
+
+          // 3. Dispatch global event for FeedbacksPage auto-refresh
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('new_feedback_received', { detail: latestFb }));
           }
         }
       } catch (err) {
@@ -387,7 +426,7 @@ const AppContent = () => {
     };
 
     checkFeedbacks();
-    pollTimer = setInterval(checkFeedbacks, 4000);
+    pollTimer = setInterval(checkFeedbacks, 2500);
 
     const handleFeedbackRead = () => {
       setHasNewFeedback(false);
@@ -456,10 +495,11 @@ const AppContent = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Unconditional hook execution complete - now safe to return views
-  if (currentView === 'feedbacks') {
-    return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
-  }
+  // Render current view content
+  const renderCurrentPageView = () => {
+    if (currentView === 'feedbacks') {
+      return <FeedbacksPage onBack={handleBackFromFeedbacks} />;
+    }
 
   // Desktop & Laptop Screen: Show Hackathon IDC 3.0 landing page
   if (!isMobile) {
@@ -826,7 +866,22 @@ const AppContent = () => {
     );
   }
 
-  return <Dashboard />;
+    return <Dashboard />;
+  };
+
+  return (
+    <>
+      <TopIncomingNotification
+        notification={incomingFeedback}
+        onClose={() => setIncomingFeedback(null)}
+        onViewFeedbacks={() => {
+          setIncomingFeedback(null);
+          navigateTo('feedbacks');
+        }}
+      />
+      {renderCurrentPageView()}
+    </>
+  );
 };
 
 function App() {

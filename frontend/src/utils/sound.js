@@ -77,9 +77,40 @@ function synthesizeSuccessChime() {
   } catch (e) {}
 }
 
+let lastPlayedFeedbackSoundTime = 0;
+
 export const playFeedbackNotificationSound = () => {
   if (typeof window === 'undefined') return;
-  synthesizeNotificationChime();
+
+  const now = Date.now();
+  // Prevent duplicate trigger within 2 seconds
+  if (now - lastPlayedFeedbackSoundTime < 2000) {
+    return;
+  }
+  lastPlayedFeedbackSoundTime = now;
+
+  console.log('🎵 Playing Judge Feedback Ringtone: /true_caller.mp3');
+
+  try {
+    const audio = new Audio('/true_caller.mp3');
+    audio.volume = 1.0;
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            try { navigator.vibrate([200, 100, 200, 100, 300]); } catch (e) {}
+          }
+        })
+        .catch((err) => {
+          console.warn('Audio play restricted by browser policy, falling back to chime:', err);
+          synthesizeNotificationChime();
+        });
+      return;
+    }
+  } catch (e) {
+    synthesizeNotificationChime();
+  }
 };
 
 function synthesizeNotificationChime() {
@@ -116,6 +147,28 @@ function synthesizeNotificationChime() {
       try { navigator.vibrate([100, 50, 150]); } catch (e) {}
     }
   } catch (e) {}
+}
+
+// Browser Autoplay Policy: Unlock audio upon first user gesture
+if (typeof window !== 'undefined') {
+  const unlockEvents = ['click', 'touchstart', 'keydown', 'pointerdown'];
+  const handleUnlockAudio = () => {
+    try {
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      // Pre-warm audio instance
+      const probeAudio = new Audio('/true_caller.mp3');
+      probeAudio.volume = 0.001;
+      probeAudio.play().then(() => {
+        probeAudio.pause();
+        probeAudio.currentTime = 0;
+      }).catch(() => {});
+    } catch (e) {}
+    unlockEvents.forEach((evt) => window.removeEventListener(evt, handleUnlockAudio));
+  };
+  unlockEvents.forEach((evt) => window.addEventListener(evt, handleUnlockAudio, { passive: true, once: true }));
 }
 
 export const initGlobalTapSound = () => {
